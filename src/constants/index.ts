@@ -24,6 +24,7 @@ export const navLinks = [
         menuOptions: [
             { label: 'Web Apps', action: 'web', shortcut: '⇧W' },
             { label: 'Animations', action: 'animations', shortcut: '⇧N' },
+            { divider: true },
             { label: 'Case Studies', action: 'case', shortcut: '⇧C' },
         ]
     },

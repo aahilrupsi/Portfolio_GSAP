@@ -15,6 +15,19 @@ body {
 @theme {
   --font-inter: "Inter", sans-serif;
   --breakpoint-3xl: 1920px;
+
+  /* macOS Theme Colors */
+  --color-macos-blue: #007AFF;
+  --color-macos-text: #1D1D1F;
+  --color-macos-dark-text: #F5F5F7;
+
+  /* Dropdown Menu Specifics */
+  --color-macos-menu-bg: rgba(255, 255, 255, 0.85);
+  --color-macos-menu-border: rgba(0, 0, 0, 0.1);
+
+  /* macOS Specific Blur & Shadows */
+  --blur-macos: 20px;
+  --shadow-macos-menu: 0 10px 30px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.1);
 }
 
 @utility flex-center {
@@ -56,14 +69,14 @@ body {
       }
 
       .nav-title {
-        @apply font-bold text-[13px] text-white tracking-wide;
+        @apply font-bold text-[13px] text-white tracking-tight;
       }
 
       ul {
         @apply flex items-center h-full;
 
         li {
-          @apply h-full flex items-center text-[13px] text-white/95 cursor-default transition-colors px-3 rounded-md mx-0.5;
+          @apply h-full flex items-center text-[13px] text-white/95 cursor-default transition-colors px-3 rounded-md mx-0.5 tracking-tight;
 
           &.active-item {
             @apply bg-white/20;
@@ -94,13 +107,13 @@ body {
   }
 
   .dropdown-menu {
-    @apply absolute top-[calc(100%+2px)] left-0 w-56 bg-[#ececec] rounded-lg shadow-2xl border border-black/10 p-1 z-100 origin-top-left;
+    @apply absolute top-[calc(100%+2px)] left-0 w-56 bg-macos-menu-bg backdrop-blur-3xl rounded-[10px] shadow-macos-menu border border-macos-menu-border py-1.5 z-100 origin-top-left tracking-tight;
 
     .menu-item {
-      @apply w-full flex justify-between items-center px-3 py-1 text-[13px] text-gray-900 rounded-md hover:bg-blue-600 hover:text-white transition-colors cursor-default select-none;
+      @apply w-[calc(100%-0.75rem)] flex justify-between items-center px-3 py-0.5 mx-1.5 text-[13px] text-gray-900 rounded-[5px] hover:bg-macos-blue hover:text-white transition-none cursor-default select-none;
 
       .shortcut {
-        @apply text-xs opacity-50 font-normal;
+        @apply text-[11px] opacity-40 font-normal ml-4;
       }
 
       &:hover .shortcut {
@@ -109,7 +122,7 @@ body {
     }
 
     .menu-divider {
-      @apply h-px bg-gray-400/20 my-1 mx-2;
+      @apply h-px bg-black/5 my-1 mx-3;
     }
   }
 

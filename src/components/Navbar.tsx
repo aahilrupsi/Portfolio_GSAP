@@ -3,7 +3,7 @@ import { navLinks } from '#constants';
 import gsap from 'gsap';
 
 /**
- * Navbar component that mimics the macOS Status Bar with dropdown functionality and hotkeys.
+ * Navbar component that mimics the macOS Status Bar with refined "Glass" dropdowns and hotkeys.
  */
 const Navbar = () => {
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -44,15 +44,12 @@ const Navbar = () => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.shiftKey) {
                 const key = e.key.toUpperCase();
-
-                // Search for shortcut in navLinks
                 for (const link of navLinks) {
                     if (link.menuOptions) {
                         const option = link.menuOptions.find(opt => opt.shortcut === `⇧${key}`);
                         if (option) {
                             e.preventDefault();
                             console.log(`Shortcut Triggered: ${option.label}`);
-                            // Logic for action would go here
                             alert(`Triggered: ${option.label}`);
                             closeMenu();
                             return;
@@ -82,7 +79,6 @@ const Navbar = () => {
         setActiveMenu(label);
         setIsMenuMode(true);
 
-        // Animate in using GSAP
         setTimeout(() => {
             const el = dropdownRefs.current[label];
             if (el) {
@@ -157,7 +153,23 @@ const Navbar = () => {
                     )}
                 </div>
 
-                <p className="nav-title">MacBook Pro</p>
+                <div
+                    className={`nav-item-container ${activeMenu === 'MacBook' ? 'active-item' : ''}`}
+                    onClick={() => handleItemClick('MacBook')}
+                    onMouseEnter={() => handleMouseEnter('MacBook')}
+                >
+                    <p className="nav-title px-2">MacBook Pro</p>
+                    {activeMenu === 'MacBook' && (
+                        <div
+                            className="dropdown-menu"
+                            ref={(el) => { dropdownRefs.current['MacBook'] = el; }}
+                        >
+                            <button className="menu-item">
+                                <span>Aahil's Hardware</span>
+                            </button>
+                        </div>
+                    )}
+                </div>
 
                 <ul>
                     {navLinks.map((link) => (
@@ -174,14 +186,20 @@ const Navbar = () => {
                                     ref={(el) => { dropdownRefs.current[link.label] = el; }}
                                 >
                                     {link.menuOptions.map((opt, idx) => (
-                                        <button key={idx} className="menu-item" onClick={(e) => {
-                                            e.stopPropagation();
-                                            console.log(`Action: ${opt.action}`);
-                                            closeMenu();
-                                        }}>
-                                            <span>{opt.label}</span>
-                                            {opt.shortcut && <span className="shortcut">{opt.shortcut}</span>}
-                                        </button>
+                                        <div key={idx} className="group px-0 w-full">
+                                            {opt.divider ? (
+                                                <div className="menu-divider" />
+                                            ) : (
+                                                <button className="menu-item" onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    console.log(`Action: ${opt.action}`);
+                                                    closeMenu();
+                                                }}>
+                                                    <span>{opt.label}</span>
+                                                    {opt.shortcut && <span className="shortcut">{opt.shortcut}</span>}
+                                                </button>
+                                            )}
+                                        </div>
                                     ))}
                                 </div>
                             )}
@@ -192,8 +210,8 @@ const Navbar = () => {
 
             <div className="right-side">
                 <div className="status-icons">
-                    <span className="text-[12px] opacity-80 cursor-default hover:opacity-100 transition-opacity">WiFi</span>
-                    <span className="text-[12px] opacity-80 cursor-default hover:opacity-100 transition-opacity">CC</span>
+                    <span className="text-[13px] tracking-tight opacity-80 cursor-default hover:opacity-100 transition-opacity">WiFi</span>
+                    <span className="text-[13px] tracking-tight opacity-80 cursor-default hover:opacity-100 transition-opacity">CC</span>
                 </div>
 
                 <time className="cursor-default">
