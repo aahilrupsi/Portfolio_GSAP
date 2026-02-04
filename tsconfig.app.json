@@ -1,28 +1,47 @@
 {
+  /* 
+     APP RULEBOOK (tsconfig.app.json)
+     -------------------------------
+     These rules apply to your frontend code (React, GSAP, etc.) which runs in the browser.
+  */
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "target": "ES2022",
-    "useDefineForClassFields": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "types": ["vite/client"],
-    "skipLibCheck": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
+    /* PROJECT STRUCTURE SETTINGS */
+    "composite": true, /* Required for the "Master Index" pattern to work correctly */
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo", /* Speeds up subsequent checks */
+    "baseUrl": ".", /* The base directory for resolving module names */
+    "paths": { /* Custom shortcuts for imports (e.g., using # instead of ../../../) */
+      "#*": [
+        "src/*"
+      ]
+    },
+    /* BROWSER ENVIRONMENT SETTINGS */
+    "target": "ES2022", /* The version of JavaScript we want to produce */
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ], /* Built-in features available in the browser */
+    "module": "ESNext", /* Use modern ESM imports (import/export) */
+    "types": [
+      "vite/client"
+    ], /* Tell TS about Vite-specific features (like import.meta.env) */
+    "jsx": "react-jsx", /* Support for React and JSX files */
+    /* BUNDLER COMPATIBILITY */
+    "moduleResolution": "bundler", /* Tells TS to look for files the way Vite does */
     "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-    "jsx": "react-jsx",
-
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "verbatimModuleSyntax": true, /* Ensures imports are handled strictly and predictably */
+    "moduleDetection": "force", /* Treats all files as modules, even if they don't have imports */
+    "noEmit": true, /* We only want TS to check for errors; Vite handles creating the JS files */
+    /* QUALITY & STRICTNESS (LINTING) */
+    "strict": true, /* Enables all strict type-checking options */
+    "skipLibCheck": true, /* Skip checking types of external libraries (saves time) */
+    "noUnusedLocals": true, /* Errors if you define a variable but don't use it */
+    "noUnusedParameters": true, /* Errors if a function has arguments it never uses */
+    "noFallthroughCasesInSwitch": true, /* Prevents bugs in switch statements */
+    "noUncheckedSideEffectImports": true, /* Errors if an import might have side effects but isn't marked */
+    "erasableSyntaxOnly": true /* Ensures the code can be easily stripped of types by build tools */
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ] /* Apply these rules to every file inside the /src folder */
 }

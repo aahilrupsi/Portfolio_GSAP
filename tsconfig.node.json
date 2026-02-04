@@ -1,26 +1,40 @@
 {
+  /* 
+     NODE RULEBOOK (tsconfig.node.json)
+     ---------------------------------
+     These rules apply to configuration files that run on your computer (Node.js),
+     NOT in the browser. (e.g., vite.config.ts)
+  */
   "compilerOptions": {
+    /* PROJECT STRUCTURE SETTINGS */
+    "composite": true, /* enables a project to be part of a larger build, allowing it to be referenced by other projects. This setting enables incremental builds */
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-    "target": "ES2023",
-    "lib": ["ES2023"],
-    "module": "ESNext",
-    "types": ["node"],
-    "skipLibCheck": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
+    /* NODE.JS ENVIRONMENT SETTINGS */
+    "target": "ES2023", /* The version of JS Node supports */
+    "lib": [
+      "ES2023"
+    ], /* Built-in Node features */
+    "module": "ESNext", /* Use modern ESM imports (import/export) */
+    "types": [
+      "node"
+    ], /* Tell TS we are in a Node environment */
+    /* BUNDLER COMPATIBILITY */
+    "moduleResolution": "bundler", /* Tells TS to look for files the way Vite does */
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
-    "noEmit": true,
-
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noEmit": true, /* We only want TS to check for errors; Vite handles creating the JS files */
+    /* QUALITY & STRICTNESS */
+    "strict": true, /* Enables all strict type-checking options */
+    "skipLibCheck": true, /* Skip checking types of external libraries (saves time) */
+    "noUnusedLocals": true, /* Errors if you define a variable but don't use it */
+    "noUnusedParameters": true, /* Errors if a function has arguments it never uses */
+    "noFallthroughCasesInSwitch": true, /* Prevents bugs in switch statements */
+    "noUncheckedSideEffectImports": true, /* Errors if an import might have side effects but isn't marked */
+    "erasableSyntaxOnly": true /* Ensures the code can be easily stripped of types by build tools */
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "vite.config.ts", /* Include the Vite configuration file */
+    "eslint.config.js" /* Include the ESLint configuration file if applicable */
+  ]
 }
