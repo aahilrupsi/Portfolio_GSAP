@@ -1,29 +1,129 @@
-
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Environment, ContactShadows } from '@react-three/drei'
+import { Canvas, useThree, useFrame } from '@react-three/fiber'
+import { Environment, ContactShadows } from '@react-three/drei'
 import Macbook from './Macbook'
+import { useLayoutEffect, useRef, useMemo } from 'react'
+import gsap from 'gsap'
+import { Vector3 } from 'three'
+
+// --- CONFIGURATION ---
+// Change these values to tweak the animation
+
+const CONFIG = {
+    // 1. Where the camera starts (The Void)
+    cameraStart: new Vector3(5, 4, 8),
+
+    // 2. The "Front View" position where it pauses
+    orbitPos: new Vector3(0, 1.5, 7),
+
+    // 3. The center of the screen (Target to look at)
+    // Adjust Y to move up/down on screen, Z to move depth
+    screenCenter: new Vector3(0, 0, -1.2),
+
+    // 4. How close the camera gets to the screen (The Zoom)
+    // Closer to Z = -1.2 means more zoomed in. 
+    // If Z is same as screenCenter.z, you crash into it.
+    zoomPos: new Vector3(0, 0, 2),
+}
+
+function CameraController() {
+    const { camera } = useThree()
+
+    // We use a mutable object to track where the camera should look.
+    // This allows us to animate the "focus point" smoothly.
+    const lookAtTarget = useMemo(() => new Vector3(0, 0, 0), [])
+
+    useLayoutEffect(() => {
+        const tl = gsap.timeline({
+            delay: 0.5,
+            defaults: { ease: 'power2.inOut' }
+        })
+
+        // 1. INITIAL SETUP
+        // Snap camera and target to start positions immediately
+        camera.position.copy(CONFIG.cameraStart)
+        lookAtTarget.set(0, 0, 0) // Looking at base initially
+        camera.lookAt(lookAtTarget)
+
+        // --- ANIMATION SEQUENCE ---
+
+        // Phase 1: Orbit to Front (Duration: 3s)
+        // Move Camera -> Front
+        tl.to(camera.position, {
+            duration: 3,
+            x: CONFIG.orbitPos.x,
+            y: CONFIG.orbitPos.y,
+            z: CONFIG.orbitPos.z,
+            ease: 'power3.inOut',
+        }, 0)
+
+        // Smoothly shift focus to the center of the laptop/screen area
+        tl.to(lookAtTarget, {
+            duration: 3,
+            x: 0,
+            y: 0.5,
+            z: 0,
+            ease: 'power3.inOut'
+        }, 0)
+
+
+        // Phase 2: Pause (Duration: .5s)
+        tl.to({}, { duration: 0.5 })
+
+
+        // Phase 3: Zoom into Screen (Duration: 2s)
+        // Move Camera -> Zoom Position
+        tl.to(camera.position, {
+            duration: 2,
+            x: CONFIG.zoomPos.x,
+            y: CONFIG.zoomPos.y,
+            z: CONFIG.zoomPos.z,
+            ease: 'power4.inOut',
+        }, ">") // ">" means start after previous finished
+
+        // Shift focus precisely to the screen center
+        tl.to(lookAtTarget, {
+            duration: 2,
+            x: CONFIG.screenCenter.x,
+            y: CONFIG.screenCenter.y,
+            z: CONFIG.screenCenter.z,
+            ease: 'power4.inOut',
+        }, "<") // "<" means align start with previous tween (run parallel with camera move)
+
+    }, [camera, lookAtTarget])
+
+    // Apply the "lookAt" every frame based on the animated target
+    useFrame(() => {
+        camera.lookAt(lookAtTarget)
+    })
+
+    return null
+}
 
 export default function Experience() {
     return (
         <div className="h-screen w-full bg-white">
             <Canvas
+                // We set initial camera here to match CONFIG.cameraStart to prevent flash/jump
                 camera={{
-                    position: [0, 2, 5],
-                    fov: 45
+                    position: [CONFIG.cameraStart.x, CONFIG.cameraStart.y, CONFIG.cameraStart.z],
+                    fov: 35
                 }}
             >
-                <color attach="background" args={['white']} />
+                <color attach="background" args={['#ffffff']} />
 
-                {/* Lighting */}
                 <Environment preset="city" />
 
-                <group position-y={-0.5}>
+                <group position-y={-1}>
                     <Macbook />
-                    <ContactShadows opacity={0.4} scale={10} blur={2} far={4} color="#000000" />
+                    <ContactShadows opacity={0.6} scale={15} blur={2.5} far={4} color="#000000" />
                 </group>
 
-                {/* Controls for debugging/viewing */}
-                <OrbitControls />
+                <CameraController />
+
+                {/* Optional: OrbitControls for debugging if we want to override, 
+            but usually conflicts with GSAP if enabled during animation. 
+            Commented out for the cinematic sequence. */}
+                {/* <OrbitControls /> */}
             </Canvas>
         </div>
     )
