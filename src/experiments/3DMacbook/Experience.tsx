@@ -22,7 +22,7 @@ const CONFIG = {
     // 4. How close the camera gets to the screen (The Zoom)
     // Closer to Z = -1.2 means more zoomed in. 
     // If Z is same as screenCenter.z, you crash into it.
-    zoomPos: new Vector3(0, 0, 2),
+    zoomPos: new Vector3(0, 0, 2.32),
 }
 
 function CameraController() {
