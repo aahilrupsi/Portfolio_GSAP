@@ -1,7 +1,7 @@
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import { Environment, ContactShadows, Stars } from '@react-three/drei'
 import Macbook from './Macbook'
-import { useLayoutEffect, useRef, useMemo } from 'react'
+import { useLayoutEffect, useEffect, useMemo } from 'react'
 import gsap from 'gsap'
 import { Vector3 } from 'three'
 
@@ -102,6 +102,35 @@ function CameraController() {
             ease: 'power4.inOut',
         }, "<") // "<" means align start with previous tween (run parallel with camera move)
 
+    }, [camera, lookAtTarget])
+
+    // Listen for the custom "launch" event from TestScreen to execute the 3D Wipe
+    useEffect(() => {
+        const handleLaunch = () => {
+            // Rapidly accelerate the camera straight through the Macbook screen
+            gsap.to(camera.position, {
+                duration: 1.2,
+                z: -5,
+                ease: 'power4.in',
+            })
+            
+            // Push the focus point extremely deep into space so the camera
+            // doesn't awkwardly flip around as it crosses the screen boundary
+            gsap.to(lookAtTarget, {
+                duration: 1.2,
+                z: -15,
+                ease: 'power4.in',
+            })
+
+            // Route to the real site right as the digital screen entirely fills your vision
+            setTimeout(() => {
+                window.history.pushState(null, '', '/')
+                window.dispatchEvent(new Event('popstate'))
+            }, 1000)
+        }
+
+        window.addEventListener('launch-portfolio', handleLaunch)
+        return () => window.removeEventListener('launch-portfolio', handleLaunch)
     }, [camera, lookAtTarget])
 
     // Apply the "lookAt" every frame based on the animated target

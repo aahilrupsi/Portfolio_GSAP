@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { navLinks } from '#constants';
+import { useDesktop } from '../contexts/DesktopContext';
+import { Apple, Laptop, Settings, Moon, RotateCcw, Power } from 'lucide-react';
 import gsap from 'gsap';
 
 /**
@@ -10,6 +12,7 @@ const Navbar = () => {
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
     const [isMenuMode, setIsMenuMode] = useState(false);
     const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+    const { openWindow, sleepScreen, restartSequence } = useDesktop();
 
     // Update time every minute
     useEffect(() => {
@@ -114,6 +117,16 @@ const Navbar = () => {
         }
     };
 
+    const handleAppleAction = (action: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        closeMenu();
+        if (action === 'about') openWindow('about');
+        if (action === 'settings') openWindow('settings');
+        if (action === 'sleep') sleepScreen();
+        if (action === 'restart') restartSequence();
+        if (action === 'shutdown') sleepScreen(); // User specified shutdown does same as sleep
+    };
+
     return (
         <nav className="navbar">
             <div className="left-side">
@@ -129,25 +142,32 @@ const Navbar = () => {
                             className="dropdown-menu"
                             ref={(el) => { dropdownRefs.current['Apple'] = el; }}
                         >
-                            <button className="menu-item">
-                                <span>About This Mac</span>
+                            <button className="menu-item" onClick={(e) => handleAppleAction('about', e)}>
+                                <span className="flex items-center gap-2">
+                                    <Apple size={14} className="opacity-70" /> About This Mac
+                                </span>
                             </button>
                             <div className="menu-divider" />
-                            <button className="menu-item">
-                                <span>System Settings...</span>
-                            </button>
-                            <button className="menu-item">
-                                <span>App Store...</span>
+                            <button className="menu-item" onClick={(e) => handleAppleAction('settings', e)}>
+                                <span className="flex items-center gap-2">
+                                    <Settings size={14} className="opacity-70" /> System Settings
+                                </span>
                             </button>
                             <div className="menu-divider" />
-                            <button className="menu-item">
-                                <span>Sleep</span>
+                            <button className="menu-item" onClick={(e) => handleAppleAction('sleep', e)}>
+                                <span className="flex items-center gap-2">
+                                    <Moon size={14} className="opacity-70" /> Sleep
+                                </span>
                             </button>
-                            <button className="menu-item">
-                                <span>Restart...</span>
+                            <button className="menu-item" onClick={(e) => handleAppleAction('restart', e)}>
+                                <span className="flex items-center gap-2">
+                                    <RotateCcw size={14} className="opacity-70" /> Restart
+                                </span>
                             </button>
-                            <button className="menu-item">
-                                <span>Shut Down...</span>
+                            <button className="menu-item" onClick={(e) => handleAppleAction('shutdown', e)}>
+                                <span className="flex items-center gap-2">
+                                    <Power size={14} className="opacity-70" /> Shut Down
+                                </span>
                             </button>
                         </div>
                     )}
@@ -165,7 +185,9 @@ const Navbar = () => {
                             ref={(el) => { dropdownRefs.current['MacBook'] = el; }}
                         >
                             <button className="menu-item">
-                                <span>Aahil's Hardware</span>
+                                <span className="flex items-center gap-2">
+                                    <Laptop size={14} className="opacity-70" /> Aahil's Hardware
+                                </span>
                             </button>
                         </div>
                     )}
@@ -187,7 +209,7 @@ const Navbar = () => {
                                 >
                                     {link.menuOptions.map((opt, idx) => (
                                         <div key={idx} className="group px-0 w-full">
-                                            {opt.divider ? (
+                                            {'divider' in opt && opt.divider ? (
                                                 <div className="menu-divider" />
                                             ) : (
                                                 <button className="menu-item" onClick={(e) => {
@@ -195,7 +217,10 @@ const Navbar = () => {
                                                     console.log(`Action: ${opt.action}`);
                                                     closeMenu();
                                                 }}>
-                                                    <span>{opt.label}</span>
+                                                    <span className="flex items-center gap-2">
+                                                        {opt.icon && <opt.icon size={14} className="opacity-70" />}
+                                                        {opt.label}
+                                                    </span>
                                                     {opt.shortcut && <span className="shortcut">{opt.shortcut}</span>}
                                                 </button>
                                             )}

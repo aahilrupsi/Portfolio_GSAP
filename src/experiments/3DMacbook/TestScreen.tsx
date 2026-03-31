@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import Navbar from '#components/Navbar'
+import Desktop from '#components/Desktop'
 
 interface TestScreenProps {
     width: number
@@ -18,41 +18,8 @@ export default function TestScreen({ width, height }: TestScreenProps) {
     const [progress, setProgress] = useState(0)
 
     const handleLaunch = () => {
-        // Create an absolute top-level overlay over the entire browser window
-        const overlay = document.createElement('div')
-        overlay.style.position = 'fixed'
-        overlay.style.top = '0'
-        overlay.style.left = '0'
-        overlay.style.width = '100vw'
-        overlay.style.height = '100vh'
-        overlay.style.backgroundColor = 'black'
-        overlay.style.zIndex = '99999'
-        overlay.style.opacity = '0'
-        overlay.style.transition = 'opacity 1s ease-in-out'
-        overlay.style.pointerEvents = 'none'
-
-        document.body.appendChild(overlay)
-
-        // 1. Fade the window to black
-        setTimeout(() => {
-            overlay.style.opacity = '1'
-        }, 50)
-
-        // 2. Once solid black, execute a soft React route change
-        setTimeout(() => {
-            window.history.pushState(null, '', '/')
-            window.dispatchEvent(new Event('popstate'))
-
-            // 3. React instantly swapped the components. We fade the blackout away to reveal it.
-            setTimeout(() => {
-                overlay.style.opacity = '0'
-
-                // 4. Destroy overlay from DOM
-                setTimeout(() => {
-                    document.body.removeChild(overlay)
-                }, 1000)
-            }, 100)
-        }, 1050)
+        // Inform the 3D Camera system to execute the Dive animation
+        window.dispatchEvent(new Event('launch-portfolio'))
     }
 
     useEffect(() => {
@@ -88,7 +55,7 @@ export default function TestScreen({ width, height }: TestScreenProps) {
             {/* macOS BOOT SEQUENCE LAYER */}
             <div
                 className={`absolute inset-0 bg-black flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out z-20 pointer-events-none ${bootState === 'turning_on' ? 'opacity-0' :
-                        bootState === 'loaded' ? 'opacity-0' : 'opacity-100'
+                    bootState === 'loaded' ? 'opacity-0' : 'opacity-100'
                     }`}
             >
                 <AppleLogo />
@@ -103,23 +70,27 @@ export default function TestScreen({ width, height }: TestScreenProps) {
             </div>
 
             {/* PAYLOAD LAYER (The Actual Website) */}
-            <div
-                className={`absolute inset-0 bg-cover bg-center bg-no-repeat flex flex-col transition-opacity duration-1000 ease-in-out z-10 ${bootState === 'loaded' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+            <Desktop
+                className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out z-10 ${bootState === 'loaded' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                     }`}
                 style={{ backgroundImage: 'url("/images/wallpaper.jpg")' }}
             >
-                <Navbar />
-
                 {/* Launch Button Container centered in the remaining space */}
-                <div className="flex-1 flex items-center justify-center">
+                <div className="w-full h-full flex items-center justify-center">
                     <button
                         onClick={handleLaunch}
-                        className="px-8 py-4 bg-white/20 backdrop-blur-md border border-white/30 text-white font-medium rounded-2xl hover:bg-white/30 hover:scale-[1.03] transition-all shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer"
+                        className="relative group p-[2px] rounded-full overflow-hidden shadow-2xl hover:scale-105 transition-transform duration-300 pointer-events-auto"
                     >
-                        Go Full Screen
+                        {/* The Animated Aura Gradient */}
+                        <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)] opacity-70 group-hover:opacity-100 transition-opacity duration-300" />
+
+                        {/* The Frosted Glass Pill */}
+                        <div className="relative inline-flex h-full w-full items-center justify-center rounded-full bg-black/40 backdrop-blur-xl px-12 py-5 text-lg font-medium text-white transition-all group-hover:bg-black/20">
+                            Enter Full Screen
+                        </div>
                     </button>
                 </div>
-            </div>
+            </Desktop>
         </div>
     )
 }

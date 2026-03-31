@@ -22,8 +22,8 @@ body {
   --color-macos-dark-text: #F5F5F7;
 
   /* Dropdown Menu Specifics */
-  --color-macos-menu-bg: rgba(255, 255, 255, 0.85);
-  --color-macos-menu-border: rgba(0, 0, 0, 0.1);
+  --color-macos-menu-bg: rgba(75, 75, 75, 0.45);
+  --color-macos-menu-border: rgba(255, 255, 255, 0.15);
 
   /* macOS Specific Blur & Shadows */
   --blur-macos: 20px;
@@ -50,13 +50,13 @@ body {
 
 @layer components {
   .navbar {
-    @apply flex justify-between items-center bg-white/20 backdrop-blur-xl px-4 select-none h-7 shadow-xs border-b border-white/10;
+    @apply flex justify-between items-center bg-transparent px-4 select-none h-7 border-b border-white/10 relative z-50;
 
     .left-side {
-      @apply flex items-center h-full gap-4;
+      @apply flex items-center h-full gap-0.5;
 
       .logo-container {
-        @apply relative h-full flex items-center px-1 hover:bg-white/20 transition-all cursor-pointer;
+        @apply relative h-full flex items-center px-3 hover:bg-white/20 transition-all cursor-pointer;
 
         img {
           /* As large as possible in height, no individual padding */
@@ -110,7 +110,7 @@ body {
     @apply absolute top-[calc(100%+2px)] left-0 w-56 bg-macos-menu-bg backdrop-blur-3xl rounded-[10px] shadow-macos-menu border border-macos-menu-border py-1.5 z-100 origin-top-left tracking-tight;
 
     .menu-item {
-      @apply w-[calc(100%-0.75rem)] flex justify-between items-center px-3 py-0.5 mx-1.5 text-[13px] text-gray-900 rounded-[5px] hover:bg-macos-blue hover:text-white transition-none cursor-default select-none;
+      @apply w-[calc(100%-0.75rem)] flex justify-between items-center px-3 py-0.5 mx-1.5 text-[13px] text-white rounded-[5px] hover:bg-macos-blue hover:text-white transition-none cursor-default select-none;
 
       .shortcut {
         @apply text-[11px] opacity-40 font-normal ml-4;
@@ -122,7 +122,7 @@ body {
     }
 
     .menu-divider {
-      @apply h-px bg-black/5 my-1 mx-3;
+      @apply h-px bg-white/15 my-1 mx-3;
     }
   }
 

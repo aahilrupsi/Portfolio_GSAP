@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import Navbar from '#components/Navbar'
+import Desktop from '#components/Desktop'
 import Experience from './experiments/3DMacbook/Experience'
 
 // starting point of the application
@@ -20,9 +20,7 @@ function App() {
   }
 
   return (
-    <>
-      <Navbar />
-    </>
+    <Desktop />
   )
 }
 
