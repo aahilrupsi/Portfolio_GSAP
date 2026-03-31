@@ -1,11 +1,21 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navbar from '#components/Navbar'
 import Experience from './experiments/3DMacbook/Experience'
 
 // starting point of the application
 function App() {
-  // Simple manual routing for the experiment
-  if (window.location.pathname === '/macbook') {
+  const [currentPath, setCurrentPath] = useState(window.location.pathname)
+
+  useEffect(() => {
+    const onLocationChange = () => {
+      setCurrentPath(window.location.pathname)
+    }
+    window.addEventListener('popstate', onLocationChange)
+    return () => window.removeEventListener('popstate', onLocationChange)
+  }, [])
+
+  // Soft React routing for the experiment
+  if (currentPath === '/macbook') {
     return <Experience />
   }
 
