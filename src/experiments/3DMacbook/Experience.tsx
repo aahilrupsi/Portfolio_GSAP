@@ -1,5 +1,5 @@
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
-import { Environment, ContactShadows } from '@react-three/drei'
+import { Environment, ContactShadows, Stars } from '@react-three/drei'
 import Macbook from './Macbook'
 import { useLayoutEffect, useRef, useMemo } from 'react'
 import gsap from 'gsap'
@@ -10,7 +10,7 @@ import { Vector3 } from 'three'
 
 const CONFIG = {
     // 1. Where the camera starts (The Void)
-    cameraStart: new Vector3(5, 4, 8),
+    cameraStart: new Vector3(0, 5, 12),
 
     // 2. The "Front View" position where it pauses
     orbitPos: new Vector3(0, 1.5, 7),
@@ -46,19 +46,32 @@ function CameraController() {
 
         // --- ANIMATION SEQUENCE ---
 
-        // Phase 1: Orbit to Front (Duration: 3s)
-        // Move Camera -> Front
-        tl.to(camera.position, {
-            duration: 3,
-            x: CONFIG.orbitPos.x,
-            y: CONFIG.orbitPos.y,
-            z: CONFIG.orbitPos.z,
+        const phase1State = {
+            angle: (Math.PI / 2) + (Math.PI * 2), // 360 degree spin starting angle
+            radius: CONFIG.cameraStart.z, // 12
+            height: CONFIG.cameraStart.y  // 5
+        }
+
+        // Phase 1: Orbit to Front (Duration: 4.5s)
+        // Move Camera -> Front with a full 360 degree rotation
+        tl.to(phase1State, {
+            duration: 4.5,
+            angle: Math.PI / 2, // End perfectly at front (0, 1.5, 7)
+            radius: CONFIG.orbitPos.z,
+            height: CONFIG.orbitPos.y,
             ease: 'power3.inOut',
+            onUpdate: () => {
+                camera.position.set(
+                    Math.cos(phase1State.angle) * phase1State.radius,
+                    phase1State.height,
+                    Math.sin(phase1State.angle) * phase1State.radius
+                )
+            }
         }, 0)
 
         // Smoothly shift focus to the center of the laptop/screen area
         tl.to(lookAtTarget, {
-            duration: 3,
+            duration: 4.5,
             x: 0,
             y: 0.5,
             z: 0,
@@ -101,7 +114,7 @@ function CameraController() {
 
 export default function Experience() {
     return (
-        <div className="h-screen w-full bg-white">
+        <div className="h-screen w-full bg-black">
             <Canvas
                 // We set initial camera here to match CONFIG.cameraStart to prevent flash/jump
                 camera={{
@@ -109,8 +122,8 @@ export default function Experience() {
                     fov: 35
                 }}
             >
-                <color attach="background" args={['#ffffff']} />
-
+                <color attach="background" args={['#050505']} />
+                <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
                 <Environment preset="city" />
 
                 <group position-y={-1}>
