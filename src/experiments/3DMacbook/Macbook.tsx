@@ -17,6 +17,17 @@ const Macbook = forwardRef<Group, MacbookProps>((props, ref) => {
         htmlHeight: number
         distanceFactor: number
     } | null>(null)
+    const [showScreen, setShowScreen] = useState(false)
+
+    useEffect(() => {
+        // The camera's initial delay is 0.5s, and the 360 orbit takes 4.5s.
+        // We wait exactly 5.0 seconds before "booting up" the screen so it's
+        // never visible while the camera sweeps behind the laptop.
+        const timer = setTimeout(() => {
+            setShowScreen(true)
+        }, 5000)
+        return () => clearTimeout(timer)
+    }, [])
 
     useImperativeHandle(ref, () => nodes.Screen_Plane)
 
@@ -91,7 +102,7 @@ const Macbook = forwardRef<Group, MacbookProps>((props, ref) => {
         <group {...props}>
             <primitive object={scene} />
 
-            {screenInfo && nodes.Screen_Plane && createPortal(
+            {showScreen && screenInfo && nodes.Screen_Plane && createPortal(
                 <Html
                     transform
                     position={screenInfo.centerPos}
@@ -102,10 +113,11 @@ const Macbook = forwardRef<Group, MacbookProps>((props, ref) => {
                     style={{
                         width: `${screenInfo.htmlWidth}px`,
                         height: `${screenInfo.htmlHeight}px`,
-                        background: '#ff0000',
-                        border: '5px solid #ffff00',
+                        background: '#000000',
+                        border: '5px solid #000000',
                         borderRadius: '20px 20px 0 0', // top-left, top-right, bottom-right, bottom-left
                         overflow: 'hidden',
+                        backfaceVisibility: 'hidden',
                     }}
                 >
                     <TestScreen width={screenInfo.htmlWidth} height={screenInfo.htmlHeight} />
