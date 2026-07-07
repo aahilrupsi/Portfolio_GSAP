@@ -1,0 +1,20 @@
+{
+  /* 
+     MASTER RULEBOOK (tsconfig.json) 
+     ------------------------------
+     This is the "Master Index" or entry point for TypeScript in your project.
+     It doesn't contain settings itself; instead, it uses "references" to point 
+     to specialized rulebooks for different parts of your app.
+  */
+  "files": [], /* No files are directly managed by this master index */
+  "references": [
+    /* Points to the rules for your React App code (everything in /src) */
+    {
+      "path": "./tsconfig.app.json"
+    },
+    /* Points to the rules for the build tools (like vite.config.ts) */
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}
