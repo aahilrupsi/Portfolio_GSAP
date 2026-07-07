@@ -243,10 +243,7 @@ const Navbar = () => {
             </div>
 
             <div className="right-side">
-                <div className="status-icons">
-                    <span className="text-[13px] tracking-tight opacity-80 cursor-default hover:opacity-100 transition-opacity">WiFi</span>
-                    <span className="text-[13px] tracking-tight opacity-80 cursor-default hover:opacity-100 transition-opacity">CC</span>
-                </div>
+                <div className="status-icons"></div>
 
                 <time className="cursor-default">
                     {formatTime(currentTime)}
