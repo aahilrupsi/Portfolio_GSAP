@@ -32,9 +32,18 @@ export default function MacWindow({
             isDark ? 'bg-[#22201F] text-white/90 border-[#3e3e3e]/40' : 'bg-white text-black border-black/10'
         } ${className}`}>
             {/* Unified Top Bar */}
-            <div className="absolute top-0 left-0 right-0 h-11 z-[60] flex items-center px-4">
-                {/* Traffic lights */}
-                <div className="flex gap-2 items-center flex-none">
+            {/* When titleBarContent is set, the bar itself is the drag handle.
+                Traffic lights and toolbar content stop pointer propagation so
+                they don't accidentally trigger GSAP drag. */}
+            <div className={`absolute top-0 left-0 right-0 h-11 z-[60] flex items-center px-4 ${
+                titleBarContent ? 'drag-handle cursor-grab active:cursor-grabbing' : ''
+            }`}>
+                {/* Traffic lights — stopPropagation on pointerdown so they never
+                    bubble up to the drag-handle (this bar) and start a drag. */}
+                <div
+                    className="flex gap-2 items-center flex-none"
+                    onPointerDown={e => e.stopPropagation()}
+                >
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
@@ -48,14 +57,14 @@ export default function MacWindow({
                 </div>
 
                 {titleBarContent ? (
-                    <>
-                        {/* Drag zone: just the left strip around traffic lights */}
-                        <div className="drag-handle absolute top-0 left-0 w-20 h-11 cursor-grab active:cursor-grabbing" />
-                        {/* Custom bar content (e.g. Safari toolbar) */}
-                        <div className="flex-1 flex items-center ml-3 pointer-events-auto">
-                            {titleBarContent}
-                        </div>
-                    </>
+                    /* Toolbar content also stops propagation so clicks on buttons
+                       inside it don't trigger a drag on this parent div. */
+                    <div
+                        className="flex-1 flex items-center ml-3 pointer-events-auto"
+                        onPointerDown={e => e.stopPropagation()}
+                    >
+                        {titleBarContent}
+                    </div>
                 ) : (
                     <>
                         {/* Standard drag zone covers the middle */}
