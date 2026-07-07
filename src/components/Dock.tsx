@@ -7,34 +7,26 @@ import finderIcon from '../assets/dock/finder.png';
 import notesIcon from '../assets/dock/notes.png';
 import settingsIcon from '../assets/dock/settings.png';
 import safariIcon from '../assets/dock/safari.png';
+import contactsIcon from '../assets/dock/contacts.png';
 
 interface DockIconProps {
     label: string;
     isOpen: boolean;
     onClick: () => void;
-    src: string;
     tooltipId: string;
+    src?: string;
+    children?: React.ReactNode;
 }
 
-function DockIcon({ label, isOpen, onClick, src, tooltipId }: DockIconProps) {
+function DockIcon({ label, isOpen, onClick, tooltipId, src, children }: DockIconProps) {
     const iconRef = useRef<HTMLDivElement>(null);
 
     const handleMouseEnter = () => {
-        gsap.to(iconRef.current, {
-            scale: 1.25,
-            y: -8,
-            duration: 0.18,
-            ease: 'back.out(2)'
-        });
+        gsap.to(iconRef.current, { scale: 1.25, y: -8, duration: 0.18, ease: 'back.out(2)' });
     };
 
     const handleMouseLeave = () => {
-        gsap.to(iconRef.current, {
-            scale: 1,
-            y: 0,
-            duration: 0.15,
-            ease: 'power2.out'
-        });
+        gsap.to(iconRef.current, { scale: 1, y: 0, duration: 0.15, ease: 'power2.out' });
     };
 
     return (
@@ -47,56 +39,37 @@ function DockIcon({ label, isOpen, onClick, src, tooltipId }: DockIconProps) {
             data-tooltip-id={tooltipId}
             data-tooltip-content={label}
         >
-            <img src={src} alt={label} draggable={false} />
+            {src
+                ? <img src={src} alt={label} draggable={false} />
+                : children
+            }
             <div className={`dock-dot transition-opacity duration-200 ${isOpen ? 'opacity-100' : 'opacity-0'}`} />
         </div>
     );
 }
 
 export default function Dock() {
-    const { windowsState, openWindow } = useDesktop();
+    const { windowsState, openWindow, playSound } = useDesktop();
 
     return (
         <div id="dock">
             <div className="dock-container">
                 {/* Finder - always shows dot */}
-                <DockIcon
-                    label="Finder"
-                    isOpen={true}
-                    onClick={() => {}}
-                    src={finderIcon}
-                    tooltipId="dock-tt"
-                />
+                <DockIcon label="Finder" isOpen={true} onClick={() => {}} src={finderIcon} tooltipId="dock-tt" />
 
-                {/* Separator */}
                 <div className="dock-separator" />
 
                 {/* Notes */}
-                <DockIcon
-                    label="Notes"
-                    isOpen={windowsState.notes.isOpen}
-                    onClick={() => openWindow('notes')}
-                    src={notesIcon}
-                    tooltipId="dock-tt"
-                />
+                <DockIcon label="Notes" isOpen={windowsState.notes.isOpen} onClick={() => { playSound('open'); openWindow('notes'); }} src={notesIcon} tooltipId="dock-tt" />
+
+                {/* Contacts */}
+                <DockIcon label="Contacts" isOpen={windowsState.contacts.isOpen} onClick={() => { playSound('open'); openWindow('contacts'); }} src={contactsIcon} tooltipId="dock-tt" />
 
                 {/* System Settings */}
-                <DockIcon
-                    label="System Settings"
-                    isOpen={windowsState.settings.isOpen}
-                    onClick={() => openWindow('settings')}
-                    src={settingsIcon}
-                    tooltipId="dock-tt"
-                />
+                <DockIcon label="System Settings" isOpen={windowsState.settings.isOpen} onClick={() => { playSound('open'); openWindow('settings'); }} src={settingsIcon} tooltipId="dock-tt" />
 
                 {/* Safari */}
-                <DockIcon
-                    label="Safari"
-                    isOpen={windowsState.safari.isOpen}
-                    onClick={() => openWindow('safari')}
-                    src={safariIcon}
-                    tooltipId="dock-tt"
-                />
+                <DockIcon label="Safari" isOpen={windowsState.safari.isOpen} onClick={() => { playSound('open'); openWindow('safari'); }} src={safariIcon} tooltipId="dock-tt" />
             </div>
 
             <Tooltip

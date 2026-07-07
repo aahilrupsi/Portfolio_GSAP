@@ -3,6 +3,7 @@ import AboutThisMac from './apps/AboutThisMac';
 import SystemSettings from './apps/SystemSettings';
 import NotesWindow from './apps/NotesWindow';
 import SafariWindow from './apps/SafariWindow';
+import ContactsWindow from './apps/ContactsWindow';
 
 export default function WindowManager() {
     const { windowsState } = useDesktop();
@@ -15,6 +16,7 @@ export default function WindowManager() {
             {windowsState.settings.isOpen && <SystemSettings />}
             {windowsState.notes.isOpen && <NotesWindow />}
             {windowsState.safari.isOpen && <SafariWindow />}
+            {windowsState.contacts.isOpen && <ContactsWindow />}
         </div>
     );
 }

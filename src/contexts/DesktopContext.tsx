@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from 'react';
 import { type WindowType, type WindowsState, WINDOW_DEFAULTS } from '../types/desktop';
 
 function centeredPosition(width: number, height: number) {
@@ -9,11 +9,38 @@ function centeredPosition(width: number, height: number) {
 }
 
 const initialWindowsState: WindowsState = {
-    about: { isOpen: false, zIndex: 100, x: 0, y: 0 },
+    about:    { isOpen: false, zIndex: 100, x: 0, y: 0 },
     settings: { isOpen: false, zIndex: 100, x: 0, y: 0 },
-    notes: { isOpen: false, zIndex: 100, x: 0, y: 0 },
-    safari: { isOpen: false, zIndex: 100, x: 0, y: 0 },
+    notes:    { isOpen: false, zIndex: 100, x: 0, y: 0 },
+    safari:   { isOpen: false, zIndex: 100, x: 0, y: 0 },
+    contacts: { isOpen: false, zIndex: 100, x: 0, y: 0 },
 };
+
+// Compress an image file to a base64 JPEG (max 1920px, 80% quality)
+export async function compressImage(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+        img.onload = () => {
+            const MAX = 1920;
+            const ratio = Math.min(MAX / img.width, MAX / img.height, 1);
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * ratio);
+            canvas.height = Math.round(img.height * ratio);
+            const ctx = canvas.getContext('2d');
+            if (!ctx) { reject(new Error('Canvas unavailable')); return; }
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            URL.revokeObjectURL(objectUrl);
+            resolve(canvas.toDataURL('image/jpeg', 0.8));
+        };
+        img.onerror = reject;
+        img.src = objectUrl;
+    });
+}
+
+export function wallpaperUrl(wallpaper: string): string {
+    return wallpaper === 'default' ? '/images/wallpaper.jpg' : wallpaper;
+}
 
 interface DesktopContextType {
     openWindow: (type: WindowType, x?: number, y?: number) => void;
@@ -24,6 +51,11 @@ interface DesktopContextType {
     windowsState: WindowsState;
     sleepScreen: () => void;
     restartSequence: () => void;
+    wallpaper: string;
+    setWallpaper: (url: string) => void;
+    soundEnabled: boolean;
+    setSoundEnabled: (v: boolean) => void;
+    playSound: (type: 'open' | 'close') => void;
 }
 
 export const DesktopContext = createContext<DesktopContextType>({
@@ -35,6 +67,11 @@ export const DesktopContext = createContext<DesktopContextType>({
     windowsState: initialWindowsState,
     sleepScreen: () => {},
     restartSequence: () => {},
+    wallpaper: 'default',
+    setWallpaper: () => {},
+    soundEnabled: true,
+    setSoundEnabled: () => {},
+    playSound: () => {},
 });
 
 export const useDesktop = () => useContext(DesktopContext);
@@ -42,15 +79,75 @@ export const useDesktop = () => useContext(DesktopContext);
 export const DesktopProvider = ({ children }: { children: ReactNode }) => {
     const [windowsState, setWindowsState] = useState<WindowsState>(initialWindowsState);
     const [isSleeping, setIsSleeping] = useState(false);
+    const [wallpaper, setWallpaperState] = useState<string>(
+        () => localStorage.getItem('portfolio-wallpaper') || 'default'
+    );
+    const [soundEnabled, setSoundEnabledState] = useState<boolean>(
+        () => localStorage.getItem('portfolio-sound') !== 'false'
+    );
+    const audioCtxRef = useRef<AudioContext | null>(null);
+
+    // Apply wallpaper to body whenever it changes
+    useEffect(() => {
+        document.body.style.backgroundImage = `url(${wallpaperUrl(wallpaper)})`;
+    }, [wallpaper]);
+
+    const setWallpaper = (url: string) => {
+        try {
+            localStorage.setItem('portfolio-wallpaper', url);
+        } catch {
+            console.warn('[DesktopContext] localStorage full — wallpaper not persisted');
+        }
+        setWallpaperState(url);
+    };
+
+    const setSoundEnabled = (v: boolean) => {
+        localStorage.setItem('portfolio-sound', String(v));
+        setSoundEnabledState(v);
+    };
+
+    const playSound = (type: 'open' | 'close') => {
+        if (localStorage.getItem('portfolio-sound') === 'false') return;
+        try {
+            if (!audioCtxRef.current) {
+                audioCtxRef.current = new AudioContext();
+            }
+            const ctx = audioCtxRef.current;
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+
+            if (type === 'open') {
+                // Soft rising tone — app launch
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.07);
+                gain.gain.setValueAtTime(0.18, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+                osc.start(now);
+                osc.stop(now + 0.13);
+            } else {
+                // Soft descending tick — window close
+                osc.frequency.setValueAtTime(660, now);
+                osc.frequency.exponentialRampToValueAtTime(220, now + 0.06);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+                osc.start(now);
+                osc.stop(now + 0.09);
+            }
+        } catch {
+            // AudioContext blocked or unavailable — silently skip
+        }
+    };
 
     const getMaxZIndex = (state: WindowsState) =>
         Math.max(...Object.values(state).map(w => w.zIndex));
 
     const openWindow = (type: WindowType, x?: number, y?: number) => {
-        console.log(`[DesktopContext] openWindow called for: ${type}`);
         setWindowsState(prev => {
             if (prev[type].isOpen) {
-                // If already open, just focus it
                 const nextZ = getMaxZIndex(prev) + 1;
                 return { ...prev, [type]: { ...prev[type], zIndex: nextZ } };
             }
@@ -59,7 +156,6 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
             const initialX = x ?? defaultPos.x;
             const initialY = y ?? defaultPos.y;
             const nextZ = getMaxZIndex(prev) + 1;
-            console.log(`[DesktopContext] Opening window: ${type}`, { initialX, initialY, nextZ });
             return { ...prev, [type]: { isOpen: true, zIndex: nextZ, x: initialX, y: initialY } };
         });
     };
@@ -71,7 +167,7 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
     const focusWindow = (type: WindowType) => {
         setWindowsState(prev => {
             const nextZ = getMaxZIndex(prev) + 1;
-            if (prev[type].zIndex === nextZ - 1) return prev; // already on top
+            if (prev[type].zIndex === nextZ - 1) return prev;
             return { ...prev, [type]: { ...prev[type], zIndex: nextZ } };
         });
     };
@@ -79,36 +175,25 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
     const updatePosition = (type: WindowType, x: number, y: number) => {
         setWindowsState(prev => ({ ...prev, [type]: { ...prev[type], x, y } }));
     };
-    
-    /**
-     * Ensures all open windows are within the specified dimensions.
-     * Useful when transitioning between the 3D Macbook screen and the full browser window.
-     */
+
     const constrainWindows = (viewportWidth: number, viewportHeight: number) => {
         setWindowsState(prev => {
             const newState = { ...prev };
             let hasChanged = false;
-
             (Object.keys(prev) as WindowType[]).forEach(type => {
                 const window = prev[type];
                 if (window.isOpen) {
                     const { width: wWidth, height: wHeight } = WINDOW_DEFAULTS[type];
-                    
-                    // Clamp X (0 to viewportWidth - windowWidth)
                     const maxX = Math.max(0, viewportWidth - wWidth);
                     const newX = Math.min(Math.max(0, window.x), maxX);
-                    
-                    // Clamp Y (0 to viewportHeight - windowHeight)
                     const maxY = Math.max(0, viewportHeight - wHeight);
                     const newY = Math.min(Math.max(0, window.y), maxY);
-
                     if (newX !== window.x || newY !== window.y) {
                         newState[type] = { ...window, x: newX, y: newY };
                         hasChanged = true;
                     }
                 }
             });
-
             return hasChanged ? newState : prev;
         });
     };
@@ -125,19 +210,20 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <DesktopContext.Provider value={{ openWindow, closeWindow, focusWindow, updatePosition, constrainWindows, windowsState, sleepScreen, restartSequence }}>
+        <DesktopContext.Provider value={{
+            openWindow, closeWindow, focusWindow, updatePosition, constrainWindows,
+            windowsState, sleepScreen, restartSequence,
+            wallpaper, setWallpaper,
+            soundEnabled, setSoundEnabled, playSound,
+        }}>
             <div className="w-full h-full relative">
                 {children}
 
-
-                {/* Sleep Overlay Layer */}
                 {isSleeping && (
                     <div
                         className="fixed inset-0 bg-black z-9999 flex items-center justify-center pointer-events-auto"
                         onMouseMove={(e) => {
-                            if (Math.abs(e.movementX) > 5 || Math.abs(e.movementY) > 5) {
-                                wakeScreen();
-                            }
+                            if (Math.abs(e.movementX) > 5 || Math.abs(e.movementY) > 5) wakeScreen();
                         }}
                         onKeyDown={() => wakeScreen()}
                         tabIndex={0}
@@ -149,4 +235,3 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
         </DesktopContext.Provider>
     );
 };
-
