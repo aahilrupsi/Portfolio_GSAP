@@ -16,7 +16,7 @@ const AppleLogo = () => (
 )
 
 export default function TestScreen({ width, height }: TestScreenProps) {
-    const { openWindow, closeWindow } = useDesktop()
+    const { openWindow, closeWindow, wallpaper } = useDesktop()
     const [bootState, setBootState] = useState<'turning_on' | 'booting' | 'loaded'>('turning_on')
     const [progress, setProgress] = useState(0)
     const [showWelcomeButtons, setShowWelcomeButtons] = useState(true)
@@ -92,7 +92,7 @@ export default function TestScreen({ width, height }: TestScreenProps) {
             <Desktop
                 className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out z-10 ${bootState === 'loaded' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                     }`}
-                style={{ backgroundImage: 'url("/images/wallpaper.jpg")' }}
+                style={{ backgroundImage: `url(${wallpaper === 'default' ? '/images/wallpaper.jpg' : wallpaper})` }}
             >
                 {showWelcomeButtons ? (
                     <div className="w-full h-full relative flex flex-col items-center justify-end pointer-events-none">

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDesktop } from '../contexts/DesktopContext';
 
 interface MacWindowProps {
     title?: string;
@@ -21,6 +22,7 @@ export default function MacWindow({
     contentClassName = '',
     theme = 'dark'
 }: MacWindowProps) {
+    const { playSound } = useDesktop();
     const isDark = theme === 'dark';
 
     return (
@@ -33,6 +35,7 @@ export default function MacWindow({
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
+                            playSound('close');
                             onClose();
                         }}
                         className="w-3 h-3 rounded-full bg-[#ff6157] cursor-pointer hover:bg-[#ff6157]/80 flex items-center justify-center"
