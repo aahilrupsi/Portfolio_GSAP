@@ -54,8 +54,8 @@ export default function Dock() {
     return (
         <div id="dock">
             <div className="dock-container">
-                {/* Finder - always shows dot */}
-                <DockIcon label="Finder" isOpen={true} onClick={() => {}} src={finderIcon} tooltipId="dock-tt" />
+                {/* Finder */}
+                <DockIcon label="Finder" isOpen={windowsState.finder.isOpen} onClick={() => { playSound('open'); openWindow('finder'); }} src={finderIcon} tooltipId="dock-tt" />
 
                 <div className="dock-separator" />
 
@@ -76,7 +76,9 @@ export default function Dock() {
                 id="dock-tt"
                 place="top"
                 offset={10}
-                className="!text-xs !py-1 !px-3 !rounded-lg !bg-gray-800/90 !text-white !shadow-xl !border-0"
+                noArrow
+                className="!text-xs !py-1 !px-3 !rounded-lg !bg-gray-800/90 !text-white !border-0 !shadow-none"
+                style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))' }}
             />
         </div>
     );
