@@ -5,11 +5,12 @@ interface MacWindowProps {
     title?: string;
     onClose: () => void;
     children: React.ReactNode;
-    className?: string; // App container overall style
-    sidebar?: React.ReactNode; // Optional sidebar
+    className?: string;
+    sidebar?: React.ReactNode;
     sidebarClassName?: string;
     contentClassName?: string;
     theme?: 'light' | 'dark';
+    titleBarContent?: React.ReactNode; // replaces centered title; renders right of traffic lights
 }
 
 export default function MacWindow({
@@ -20,7 +21,8 @@ export default function MacWindow({
     sidebar,
     sidebarClassName = '',
     contentClassName = '',
-    theme = 'dark'
+    theme = 'dark',
+    titleBarContent,
 }: MacWindowProps) {
     const { playSound } = useDesktop();
     const isDark = theme === 'dark';
@@ -30,8 +32,9 @@ export default function MacWindow({
             isDark ? 'bg-[#22201F] text-white/90 border-[#3e3e3e]/40' : 'bg-white text-black border-black/10'
         } ${className}`}>
             {/* Unified Top Bar */}
-            <div className="absolute top-0 left-0 right-0 h-11 z-[60] flex items-center px-4 cursor-grab active:cursor-grabbing">
-                <div className="flex gap-2 items-center">
+            <div className="absolute top-0 left-0 right-0 h-11 z-[60] flex items-center px-4">
+                {/* Traffic lights */}
+                <div className="flex gap-2 items-center flex-none">
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
@@ -44,15 +47,27 @@ export default function MacWindow({
                     <button className="w-3 h-3 rounded-full bg-[#2acb42] cursor-default opacity-50" />
                 </div>
 
-                {/* Draggable area (excludes corners) */}
-                <div className="drag-handle absolute top-0 left-12 right-12 h-11" />
-                
-                 {title && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className={`text-sm font-semibold select-none ${
-                            isDark ? 'text-white/80' : 'text-black/60'
-                        }`}>{title}</span>
-                    </div>
+                {titleBarContent ? (
+                    <>
+                        {/* Drag zone: just the left strip around traffic lights */}
+                        <div className="drag-handle absolute top-0 left-0 w-20 h-11 cursor-grab active:cursor-grabbing" />
+                        {/* Custom bar content (e.g. Safari toolbar) */}
+                        <div className="flex-1 flex items-center ml-3 pointer-events-auto">
+                            {titleBarContent}
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        {/* Standard drag zone covers the middle */}
+                        <div className="drag-handle absolute top-0 left-12 right-12 h-11 cursor-grab active:cursor-grabbing" />
+                        {title && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <span className={`text-sm font-semibold select-none ${
+                                    isDark ? 'text-white/80' : 'text-black/60'
+                                }`}>{title}</span>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
