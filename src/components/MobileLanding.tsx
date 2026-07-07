@@ -1,30 +1,66 @@
 import { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { Mail, Linkedin, Github, FileText, Monitor } from 'lucide-react';
+import { Mail, ExternalLink, GitBranch, FileText, Monitor } from 'lucide-react';
+
+const NOTICE = "This portfolio is a macOS desktop experience. Visit on a larger screen for the full interactive version.";
 
 const LINKS = [
     {
         icon: Mail,
         label: 'Email',
+        descriptor: 'mailto',
         href: 'mailto:aahil@mckinneyandco.com',
     },
     {
-        icon: Linkedin,
+        icon: ExternalLink,
         label: 'LinkedIn',
-        href: 'https://linkedin.com/in/aahilrupsi', // update if slug differs
+        descriptor: 'linkedin.com',
+        href: 'https://linkedin.com/in/aahilrupsi',
     },
     {
-        icon: Github,
+        icon: GitBranch,
         label: 'GitHub',
+        descriptor: 'github.com',
         href: 'https://github.com/aahilrupsi',
     },
     {
         icon: FileText,
         label: 'Resume',
-        href: '/resume.pdf', // drop resume.pdf in public/
+        descriptor: '.pdf',
+        href: '/resume.pdf',
         download: true,
     },
 ];
+
+function TypewriterText({ text, startDelay = 0 }: { text: string; startDelay?: number }) {
+    const [displayed, setDisplayed] = useState('');
+    const [done, setDone] = useState(false);
+
+    useEffect(() => {
+        let i = 0;
+        const start = setTimeout(() => {
+            const tick = setInterval(() => {
+                i++;
+                setDisplayed(text.slice(0, i));
+                if (i >= text.length) {
+                    clearInterval(tick);
+                    setDone(true);
+                }
+            }, 22);
+            return () => clearInterval(tick);
+        }, startDelay);
+        return () => clearTimeout(start);
+    }, [text, startDelay]);
+
+    return (
+        <span>
+            {displayed}
+            {!done && (
+                <span className="inline-block w-[2px] h-[1em] bg-white/70 ml-[1px] align-middle animate-pulse" />
+            )}
+        </span>
+    );
+}
 
 function PreviewWindow() {
     const [gifError, setGifError] = useState(false);
@@ -53,7 +89,6 @@ function PreviewWindow() {
                         onError={() => setGifError(true)}
                     />
                 ) : (
-                    // Placeholder shown until preview.gif is added to public/images/
                     <div
                         className="absolute inset-0 bg-cover bg-center opacity-40"
                         style={{ backgroundImage: 'url("/images/wallpaper.jpg")' }}
@@ -74,6 +109,7 @@ export default function MobileLanding() {
 
     useEffect(() => {
         const ctx = gsap.context(() => {
+            // Fade+rise for name, notice box, preview window
             gsap.from('.m-animate', {
                 y: 24,
                 opacity: 0,
@@ -82,6 +118,16 @@ export default function MobileLanding() {
                 ease: 'power2.out',
                 delay: 0.15,
             });
+
+            // Slide in from right for each link row
+            gsap.from('.link-row', {
+                x: 50,
+                opacity: 0,
+                duration: 0.45,
+                stagger: 0.08,
+                ease: 'power2.out',
+                delay: 0.55,
+            });
         }, containerRef);
         return () => ctx.revert();
     }, []);
@@ -89,17 +135,18 @@ export default function MobileLanding() {
     return (
         <div
             ref={containerRef}
-            className="min-h-screen w-full overflow-y-auto flex flex-col items-center px-5 pt-16 pb-12"
+            className="min-h-screen w-full flex flex-col items-center px-5 pt-16 pb-8 overflow-y-auto"
             style={{
                 backgroundImage: 'url("/images/wallpaper.jpg")',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
             }}
         >
-            {/* Darkening overlay for readability */}
+            {/* Darkening overlay */}
             <div className="fixed inset-0 bg-black/35 pointer-events-none" />
 
-            <div className="relative z-10 w-full max-w-sm flex flex-col items-center gap-6">
+            {/* Main content */}
+            <div className="relative z-10 w-full max-w-sm flex flex-col items-center gap-6 flex-1">
 
                 {/* Name + title */}
                 <div className="m-animate text-center">
@@ -109,16 +156,16 @@ export default function MobileLanding() {
                     >
                         Aahil Rupsi
                     </h1>
-                    <p className="text-white/55 text-[15px] mt-2.5 font-medium tracking-wide">
+                    <p className="text-white text-[15px] mt-2.5 font-medium tracking-wide opacity-80">
                         Software Engineer
                     </p>
                 </div>
 
-                {/* Desktop-only notice */}
+                {/* Desktop-only notice — box restored, typewriter text */}
                 <div className="m-animate w-full bg-white/10 backdrop-blur-xl border border-white/15 rounded-2xl p-4 flex gap-3 items-start">
-                    <Monitor size={16} className="text-white/60 flex-none mt-0.5" />
-                    <p className="text-white/70 text-[13px] leading-relaxed">
-                        This portfolio is a macOS desktop experience. Visit on a larger screen for the full interactive version.
+                    <Monitor size={16} className="text-white flex-none mt-0.5" />
+                    <p className="text-white text-[13px] leading-relaxed opacity-80 min-h-[3.5rem]">
+                        <TypewriterText text={NOTICE} startDelay={800} />
                     </p>
                 </div>
 
@@ -127,29 +174,42 @@ export default function MobileLanding() {
                     <PreviewWindow />
                 </div>
 
-                {/* Quick links */}
-                <div className="m-animate w-full grid grid-cols-2 gap-3">
-                    {LINKS.map(({ icon: Icon, label, href, download }) => (
-                        <a
-                            key={label}
-                            href={href}
-                            {...(download
-                                ? { download: true }
-                                : { target: '_blank', rel: 'noreferrer' }
-                            )}
-                            className="flex items-center gap-2.5 bg-white/10 backdrop-blur-xl border border-white/15 rounded-xl px-4 py-3.5 text-white/75 hover:bg-white/20 hover:text-white active:scale-95 transition-all"
-                        >
-                            <Icon size={15} className="flex-none" />
-                            <span className="text-[13px] font-medium">{label}</span>
-                        </a>
-                    ))}
+                {/* Links — full-width editorial list */}
+                <div className="w-full">
+                    <p className="text-[10px] text-white/70 uppercase tracking-[0.18em] mb-3 font-medium">
+                        Get in touch
+                    </p>
+                    <div className="border-t border-white/15">
+                        {LINKS.map(({ icon: Icon, label, descriptor, href, download }) => (
+                            <a
+                                key={label}
+                                href={href}
+                                {...(download
+                                    ? { download: true }
+                                    : { target: '_blank', rel: 'noreferrer' }
+                                )}
+                                className="link-row group flex items-center w-full py-[18px] border-b border-white/15 active:bg-white/5 transition-colors"
+                            >
+                                <span
+                                    className="flex-1 text-[26px] font-bold leading-none text-white tracking-tight"
+                                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                                >
+                                    {label}
+                                </span>
+                                <span className="text-[11px] text-white/60 font-mono mx-4">
+                                    {descriptor}
+                                </span>
+                                <Icon size={15} className="text-white flex-none" />
+                            </a>
+                        ))}
+                    </div>
                 </div>
-
-                {/* Footer */}
-                <p className="m-animate text-white/25 text-[11px] mt-1">
-                    © {new Date().getFullYear()} Aahil Rupsi
-                </p>
             </div>
+
+            {/* Footer — anchored to bottom */}
+            <p className="relative z-10 text-white/60 text-[11px] mt-8">
+                © {new Date().getFullYear()} Aahil Rupsi
+            </p>
         </div>
     );
 }

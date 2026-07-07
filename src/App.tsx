@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react'
-import Desktop from '#components/Desktop'
-import Experience from './experiments/3DMacbook/Experience'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import MobileLanding from '#components/MobileLanding'
+
+// Lazy-loaded so mobile visitors never download these chunks.
+// Vite splits each into its own bundle — Three.js, R3F, etc. only
+// load when a desktop visitor actually renders one of these routes.
+const Desktop = lazy(() => import('#components/Desktop'))
+const Experience = lazy(() => import('./experiments/3DMacbook/Experience'))
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
@@ -32,13 +36,19 @@ function App() {
 
   // Soft React routing for the experiment
   if (currentPath === '/macbook') {
-    return <Experience />
+    return (
+      <Suspense fallback={<div className="w-screen h-screen bg-black" />}>
+        <Experience />
+      </Suspense>
+    )
   }
 
   return (
-    <main className="w-screen h-screen flex flex-col">
-      <Desktop />
-    </main>
+    <Suspense fallback={<div className="w-screen h-screen bg-black" />}>
+      <main className="w-screen h-screen flex flex-col">
+        <Desktop />
+      </main>
+    </Suspense>
   )
 }
 
