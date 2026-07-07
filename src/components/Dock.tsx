@@ -3,10 +3,10 @@ import { Tooltip } from 'react-tooltip';
 import { useDesktop } from '../contexts/DesktopContext';
 import gsap from 'gsap';
 
-import finderIcon from '../assets/dock_icons/finder.png';
-import notesIcon from '../assets/dock_icons/notes.png';
-import settingsIcon from '../assets/dock_icons/settings.png';
-import safariIcon from '../assets/dock_icons/safari.png';
+import finderIcon from '../assets/dock/finder.png';
+import notesIcon from '../assets/dock/notes.png';
+import settingsIcon from '../assets/dock/settings.png';
+import safariIcon from '../assets/dock/safari.png';
 
 interface DockIconProps {
     label: string;

@@ -136,7 +136,7 @@ const Navbar = () => {
                     onClick={() => handleItemClick('Apple')}
                     onMouseEnter={() => handleMouseEnter('Apple')}
                 >
-                    <img src="icons/Apple_logo_white.svg" alt="Apple Logo" />
+                    <img src="/icons/apple-logo.svg" alt="Apple Logo" />
                     {activeMenu === 'Apple' && (
                         <div
                             className="dropdown-menu"

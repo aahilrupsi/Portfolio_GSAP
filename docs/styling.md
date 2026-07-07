@@ -123,3 +123,39 @@ Configured in `vite.config.ts`:
 ```
 
 Use like: `import Desktop from '#components/Desktop'`
+
+---
+
+## Asset Organization
+
+Two asset locations — keep the distinction, it's a Vite convention:
+
+### `public/` — static files served at a known URL (no bundling)
+
+Referenced as absolute URL strings in CSS or JS. Not hashed.
+
+```
+public/
+├── icons/
+│   └── apple-logo.svg          ← Navbar Apple logo (CSS/img src="/icons/apple-logo.svg")
+├── images/
+│   ├── wallpaper.jpg           ← body background + TestScreen background
+│   └── ucsd-seal.svg           ← available for future use
+└── models/
+    └── macbook.glb             ← Three.js model (useGLTF('/models/macbook.glb'))
+```
+
+### `src/assets/` — bundled by Vite (import in TS/TSX)
+
+Imported in component files. Vite hashes the filename for cache-busting.
+
+```
+src/assets/
+└── dock/
+    ├── finder.png
+    ├── notes.png
+    ├── safari.png
+    └── settings.png
+```
+
+**Rule of thumb:** If the path is in a CSS string or loaded by a library (Three.js, etc.) → `public/`. If it's `import`ed in a React component → `src/assets/`.

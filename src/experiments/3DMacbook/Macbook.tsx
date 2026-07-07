@@ -10,7 +10,7 @@ interface MacbookProps {
 }
 
 const Macbook = forwardRef<Group, MacbookProps>((props, ref) => {
-    const { scene, nodes } = useGLTF('/files/macbook_blender_export.glb') as any
+    const { scene, nodes } = useGLTF('/models/macbook.glb') as any
     const [screenInfo, setScreenInfo] = useState<{
         centerPos: [number, number, number]
         scale: number
@@ -133,4 +133,4 @@ const Macbook = forwardRef<Group, MacbookProps>((props, ref) => {
 
 export default Macbook
 
-useGLTF.preload('/files/macbook_blender_export.glb')
+useGLTF.preload('/models/macbook.glb')

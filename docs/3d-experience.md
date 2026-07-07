@@ -147,5 +147,5 @@ openWindow('notes', 40, height - 500 - 40)
 
 ## Assets
 
-- **GLB model:** `public/files/macbook_blender_export.glb` — the MacBook 3D model exported from Blender
+- **GLB model:** `public/models/macbook.glb` — the MacBook 3D model exported from Blender
 - **Wallpaper:** `public/images/wallpaper.jpg` — used as background on both the 3D screen's Desktop and the main `<body>` background
