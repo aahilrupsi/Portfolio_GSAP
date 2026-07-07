@@ -1,14 +1,11 @@
-import { 
-    Info, 
-    Briefcase, 
-    Code, 
-    GraduationCap, 
-    Mail, 
-    User, 
-    GitBranch, 
-    Monitor, 
-    Palette, 
-    FileText 
+import {
+    FileText,
+    Users,
+    Mail,
+    User,
+    GitBranch,
+    ExternalLink,
+    Monitor,
 } from 'lucide-react';
 
 export type MenuOption = {
@@ -26,32 +23,30 @@ export type MenuOption = {
 
 export const navLinks: { label: string; href: string; menuOptions: MenuOption[] }[] = [
     {
-        label: 'Portfolio',
-        href: '#portfolio',
+        label: 'Resume',
+        href: '#resume',
         menuOptions: [
-            { label: 'About Me', action: 'about', shortcut: '⇧A', icon: Info },
-            { label: 'Experience', action: 'experience', shortcut: '⇧E', icon: Briefcase },
-            { label: 'Skills', action: 'skills', shortcut: '⇧S', icon: Code },
-            { label: 'Education', action: 'education', shortcut: '⇧D', icon: GraduationCap },
+            { label: 'View Resume', action: 'noop', shortcut: '⇧R', icon: FileText },
         ]
     },
     {
-        label: 'Contact',
-        href: '#contact',
+        label: 'Contacts',
+        href: '#contacts',
         menuOptions: [
-            { label: 'Email Me', action: 'email', shortcut: '⇧M', icon: Mail },
-            { label: 'LinkedIn', action: 'linkedin', shortcut: '⇧L', icon: User },
-            { label: 'GitHub', action: 'github', shortcut: '⇧G', icon: GitBranch },
+            { label: 'Open Contacts', action: 'open:contacts', shortcut: '⇧C', icon: Users },
+            { divider: true },
+            { label: 'Email', action: 'mailto:subikahaider@gmail.com', shortcut: '⇧M', icon: Mail },
+            { label: 'LinkedIn', action: 'https://linkedin.com/in/aahilrupsi', shortcut: '⇧L', icon: User },
+            { label: 'GitHub', action: 'https://github.com/aahilrupsi', shortcut: '⇧G', icon: GitBranch },
         ]
     },
     {
         label: 'Projects',
         href: '#projects',
         menuOptions: [
-            { label: 'Web Apps', action: 'web', shortcut: '⇧W', icon: Monitor },
-            { label: 'Animations', action: 'animations', shortcut: '⇧N', icon: Palette },
+            { label: 'Open Projects', action: 'open:safari', shortcut: '⇧P', icon: Monitor },
             { divider: true },
-            { label: 'Case Studies', action: 'case', shortcut: '⇧C', icon: FileText },
+            { label: 'View on GitHub', action: 'https://github.com/aahilrupsi', shortcut: '⇧V', icon: ExternalLink },
         ]
     },
 ];

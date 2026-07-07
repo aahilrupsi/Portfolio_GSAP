@@ -76,7 +76,7 @@ export default function Dock() {
                 id="dock-tt"
                 place="top"
                 offset={10}
-                className="!text-xs !py-1 !px-3 !rounded-lg !bg-gray-800/90 !text-white !shadow-xl"
+                className="!text-xs !py-1 !px-3 !rounded-lg !bg-gray-800/90 !text-white !shadow-xl !border-0"
             />
         </div>
     );

@@ -55,7 +55,7 @@ body {
 
 @layer components {
   .navbar {
-    @apply flex justify-between items-center bg-transparent px-4 select-none h-7 border-b border-white/10 relative z-50;
+    @apply flex justify-between items-center bg-transparent px-4 select-none h-7 border-b border-white/10 relative z-[9998];
 
     .left-side {
       @apply flex items-center h-full gap-0.5;

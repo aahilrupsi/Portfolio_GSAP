@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { navLinks } from '#constants';
 import { useDesktop } from '../contexts/DesktopContext';
+import { type WindowType } from '../types/desktop';
 import { Apple, Laptop, Settings, Moon, RotateCcw, Power } from 'lucide-react';
 import gsap from 'gsap';
 
@@ -49,11 +50,10 @@ const Navbar = () => {
                 const key = e.key.toUpperCase();
                 for (const link of navLinks) {
                     if (link.menuOptions) {
-                        const option = link.menuOptions.find(opt => opt.shortcut === `⇧${key}`);
-                        if (option) {
+                        const option = link.menuOptions.find(opt => 'shortcut' in opt && opt.shortcut === `⇧${key}`);
+                        if (option && 'action' in option) {
                             e.preventDefault();
-                            console.log(`Shortcut Triggered: ${option.label}`);
-                            alert(`Triggered: ${option.label}`);
+                            handleNavAction(option.action);
                             closeMenu();
                             return;
                         }
@@ -114,6 +114,15 @@ const Navbar = () => {
                     );
                 }
             }, 0);
+        }
+    };
+
+    const handleNavAction = (action: string) => {
+        if (action === 'noop') return;
+        if (action.startsWith('open:')) {
+            openWindow(action.slice(5) as WindowType);
+        } else if (action.startsWith('mailto:') || action.startsWith('http')) {
+            window.open(action, '_blank', 'noopener,noreferrer');
         }
     };
 
@@ -214,7 +223,7 @@ const Navbar = () => {
                                             ) : (
                                                 <button className="menu-item" onClick={(e) => {
                                                     e.stopPropagation();
-                                                    console.log(`Action: ${opt.action}`);
+                                                    handleNavAction(opt.action);
                                                     closeMenu();
                                                 }}>
                                                     <span className="flex items-center gap-2">
