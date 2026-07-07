@@ -6,6 +6,8 @@ import { type WindowType, WINDOW_DEFAULTS } from '../types/desktop';
 
 gsap.registerPlugin(Draggable);
 
+const NAVBAR_HEIGHT = 28; // h-7
+
 interface DraggableWindowProps {
     id: WindowType;
     children: React.ReactNode;
@@ -30,8 +32,11 @@ export default function DraggableWindow({ id, children, resizable = false, minWi
         const [instance] = Draggable.create(el, {
             trigger: el.querySelector('.drag-handle') as HTMLElement,
             // bounds: 'body', // Removed to avoid issues with CSS3D transforms
+            liveSnap: {
+                y: (y: number) => Math.max(NAVBAR_HEIGHT, y),
+            },
             onDragEnd() {
-                updatePosition(id, this.x, this.y);
+                updatePosition(id, this.x, Math.max(NAVBAR_HEIGHT, this.y));
             },
         });
 
@@ -87,7 +92,7 @@ export default function DraggableWindow({ id, children, resizable = false, minWi
             }
             if (direction === 'ne' || direction === 'nw') {
                 newHeight = Math.max(minHeight, startHeight - deltaY);
-                newY = windowY + deltaY;
+                newY = Math.max(NAVBAR_HEIGHT, windowY + deltaY);
             }
 
             setSize({ width: newWidth, height: newHeight });
