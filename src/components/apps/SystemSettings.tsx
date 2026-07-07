@@ -128,7 +128,7 @@ function WallpaperPanel() {
 // ─── Sound Panel ────────────────────────────────────────────────────────────
 
 function SoundPanel() {
-    const { soundEnabled, setSoundEnabled, playSound } = useDesktop();
+    const { soundEnabled, setSoundEnabled } = useDesktop();
 
     return (
         <div className="flex-1 p-6">
@@ -144,33 +144,6 @@ function SoundPanel() {
                     onToggle={() => setSoundEnabled(!soundEnabled)}
                 />
             </div>
-
-            {soundEnabled && (
-                <div className="mt-8">
-                    <p className="text-[11px] text-white/30 mb-3 uppercase tracking-wider">Test</p>
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => playSound('open')}
-                            className="text-[12px] px-4 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors"
-                        >
-                            Play Open
-                        </button>
-                        <button
-                            onClick={() => playSound('close')}
-                            className="text-[12px] px-4 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors"
-                        >
-                            Play Close
-                        </button>
-                    </div>
-                    <p className="mt-4 text-[11px] text-white/25 leading-relaxed">
-                        Want macOS's own sounds? On a Mac, find them at{' '}
-                        <span className="font-mono text-white/40">/System/Library/Sounds/</span>.
-                        Search <span className="text-white/40">"Tink.aiff"</span> or{' '}
-                        <span className="text-white/40">"Pop.aiff"</span> — convert to MP3 and drop in{' '}
-                        <span className="font-mono text-white/40">public/sounds/</span>.
-                    </p>
-                </div>
-            )}
         </div>
     );
 }

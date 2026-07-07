@@ -85,7 +85,13 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
     const [soundEnabled, setSoundEnabledState] = useState<boolean>(
         () => localStorage.getItem('portfolio-sound') !== 'false'
     );
-    const audioCtxRef = useRef<AudioContext | null>(null);
+    const openAudioRef = useRef<HTMLAudioElement | null>(null);
+    const closeAudioRef = useRef<HTMLAudioElement | null>(null);
+
+    useEffect(() => {
+        openAudioRef.current = new Audio('/sounds/open.mp3');
+        closeAudioRef.current = new Audio('/sounds/close.mp3');
+    }, []);
 
     // Apply wallpaper to body whenever it changes
     useEffect(() => {
@@ -109,36 +115,12 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
     const playSound = (type: 'open' | 'close') => {
         if (localStorage.getItem('portfolio-sound') === 'false') return;
         try {
-            if (!audioCtxRef.current) {
-                audioCtxRef.current = new AudioContext();
-            }
-            const ctx = audioCtxRef.current;
-            const now = ctx.currentTime;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.type = 'sine';
-
-            if (type === 'open') {
-                // Soft rising tone — app launch
-                osc.frequency.setValueAtTime(440, now);
-                osc.frequency.exponentialRampToValueAtTime(880, now + 0.07);
-                gain.gain.setValueAtTime(0.18, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
-                osc.start(now);
-                osc.stop(now + 0.13);
-            } else {
-                // Soft descending tick — window close
-                osc.frequency.setValueAtTime(660, now);
-                osc.frequency.exponentialRampToValueAtTime(220, now + 0.06);
-                gain.gain.setValueAtTime(0.12, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-                osc.start(now);
-                osc.stop(now + 0.09);
-            }
+            const audio = type === 'open' ? openAudioRef.current : closeAudioRef.current;
+            if (!audio) return;
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
         } catch {
-            // AudioContext blocked or unavailable — silently skip
+            // Autoplay blocked — silently skip
         }
     };
 
