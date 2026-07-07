@@ -10,7 +10,7 @@ export default function NotesWindow() {
     const [content, setContent] = useState(
         'My name is Aahil Rupsi. Welcome to my portfolio! Here is some stuff for you to try out.\n\n' +
         '1. Click and drag the "Welcome" text, its made to be interactive. See how far you can stretch it.\n' +
-        '2. Explore the apps in the dock and on the desktop\n' +
+        '2. Explore the apps in the dock.\n' +
         '3. Feel free to edit this note - it\'s just for you!\n' +
         '4. Click "Go Full Screen" to get the best experience\n\n' +
         'Enjoy your stay!'

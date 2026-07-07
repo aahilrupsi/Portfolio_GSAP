@@ -5,6 +5,7 @@ import NotesWindow from './apps/NotesWindow';
 import SafariWindow from './apps/SafariWindow';
 import ContactsWindow from './apps/ContactsWindow';
 import FinderWindow from './apps/FinderWindow';
+import PreviewWindow from './apps/PreviewWindow';
 
 export default function WindowManager() {
     const { windowsState } = useDesktop();
@@ -19,6 +20,7 @@ export default function WindowManager() {
             {windowsState.safari.isOpen && <SafariWindow />}
             {windowsState.contacts.isOpen && <ContactsWindow />}
             {windowsState.finder.isOpen && <FinderWindow />}
+            {windowsState.preview.isOpen && <PreviewWindow />}
         </div>
     );
 }

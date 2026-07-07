@@ -1,229 +1,381 @@
-import { useState, useEffect, type ReactNode } from 'react';
-import { FileText, User, Folder, Download } from 'lucide-react';
+import { useState } from 'react';
+import {
+    Wifi, Clock, Monitor, FileText, Download, House,
+    Folder, User, ChevronLeft, ChevronRight, List, LayoutGrid,
+    AppWindow, Music, ImageIcon, Film, Box,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import MacWindow from '../MacWindow';
 import DraggableWindow from '../DraggableWindow';
-import { useDesktop } from '../../contexts/DesktopContext';
+import { useDesktop, type PreviewTarget } from '../../contexts/DesktopContext';
 
-// ─── Sidebar items ────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-type ItemKind = 'md' | 'pdf' | 'vcf' | 'folder';
+type FileKind = 'md' | 'pdf' | 'vcf' | 'app' | 'img' | 'music' | 'txt' | 'glb';
 
-interface FinderItem {
-    id: string;
+interface FsFile {
+    type: 'file';
     name: string;
-    kind: ItemKind;
+    kind: FileKind;
+    kindLabel: string;
+    size: string;
+    dateAdded: string;
 }
 
-const ITEMS: FinderItem[] = [
-    { id: 'me',      name: 'me.md',         kind: 'md'     },
-    { id: 'resume',  name: 'resume.pdf',    kind: 'pdf'    },
-    { id: 'contact', name: 'contact.vcf',   kind: 'vcf'    },
-    { id: 'source',  name: 'Source Files',  kind: 'folder' },
+interface FsFolder {
+    type: 'folder';
+    name: string;
+    kindLabel: 'Folder';
+    size: string;
+    dateAdded: string;
+    children: FsEntry[];
+}
+
+type FsEntry = FsFile | FsFolder;
+
+// ─── Filesystem data ──────────────────────────────────────────────────────────
+
+const TODAY = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+function f(name: string, kind: FileKind, kindLabel: string, size: string, dateAdded: string): FsFile {
+    return { type: 'file', name, kind, kindLabel, size, dateAdded };
+}
+function d(name: string, dateAdded: string, children: FsEntry[]): FsFolder {
+    return { type: 'folder', name, kindLabel: 'Folder', size: '--', dateAdded, children };
+}
+
+const APPS: FsEntry[] = [
+    f('Arc.app',                'app', 'Application', '198 MB',  'Jan 12, 2026'),
+    f('Blender.app',            'app', 'Application', '512 MB',  'Oct  3, 2025'),
+    f('Figma.app',              'app', 'Application', '286 MB',  'Aug 20, 2025'),
+    f('Spotify.app',            'app', 'Application', '411 MB',  'Jun  5, 2025'),
+    f('Visual Studio Code.app', 'app', 'Application', '367 MB',  'Jun  5, 2025'),
+    f('Warp.app',               'app', 'Application', '145 MB',  'Sep 14, 2025'),
+    f('Xcode.app',              'app', 'Application', '14.2 GB', 'Jul  1, 2025'),
 ];
 
-// ─── Markdown renderer ────────────────────────────────────────────────────────
+const DOCS: FsEntry[] = [
+    f('me.md',       'md',  'Markdown Text', '2 KB', TODAY),
+    f('resume.pdf',  'pdf', 'PDF Document',  '--',   TODAY),
+    f('contact.vcf', 'vcf', 'Contact Card',  '1 KB', TODAY),
+    d('Source Files', TODAY, []),
+];
 
-function renderInline(text: string): ReactNode[] {
-    const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g);
-    return parts.map((part, i) => {
-        if (part.startsWith('**') && part.endsWith('**'))
-            return <strong key={i}>{part.slice(2, -2)}</strong>;
-        if (part.startsWith('*') && part.endsWith('*'))
-            return <em key={i}>{part.slice(1, -1)}</em>;
-        if (part.startsWith('`') && part.endsWith('`'))
-            return <code key={i} className="px-1 py-0.5 bg-black/10 rounded text-[12px] font-mono">{part.slice(1, -1)}</code>;
-        const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-        if (linkMatch)
-            return <a key={i} href={linkMatch[2]} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{linkMatch[1]}</a>;
-        return part;
-    });
+const PETS: FsEntry[] = [
+    f('buddy.jpg',    'img', 'JPEG Image', '3.2 MB', 'Feb 14, 2026'),
+    f('mittens.jpg',  'img', 'JPEG Image', '2.8 MB', 'Mar  3, 2026'),
+    f('peanut.jpg',   'img', 'JPEG Image', '4.1 MB', 'Apr  7, 2026'),
+    f('snowball.jpg', 'img', 'JPEG Image', '2.3 MB', 'May 20, 2026'),
+];
+
+const PICS: FsEntry[] = [
+    d('Pets',        'Feb 14, 2026', PETS),
+    d('Screenshots', 'Jan  5, 2026', []),
+    d('Wallpapers',  'Jun  5, 2025', []),
+];
+
+const PLAYLISTS: FsEntry[] = [
+    f('coding.m3u',     'music', 'Audio Playlist', '3 KB', 'Sep 14, 2025'),
+    f('gym.m3u',        'music', 'Audio Playlist', '2 KB', 'Nov  1, 2025'),
+    f('late-night.m3u', 'music', 'Audio Playlist', '4 KB', 'Dec 12, 2025'),
+];
+
+const MUSIC: FsEntry[] = [d('Playlists', 'Sep 14, 2025', PLAYLISTS)];
+
+const DESKTOP: FsEntry[] = [f('todo.txt', 'txt', 'Plain Text Document', '1 KB', TODAY)];
+
+const DOWNLOADS: FsEntry[] = [f('macbook.glb', 'glb', '3D Scene', '4.2 MB', 'Apr  1, 2026')];
+
+const HOME: FsEntry[] = [
+    d('Applications', 'Jun  5, 2025', APPS),
+    d('Desktop',      TODAY,          DESKTOP),
+    d('Documents',    TODAY,          DOCS),
+    d('Downloads',    'Apr  1, 2026', DOWNLOADS),
+    d('Movies',       'Jun  5, 2025', []),
+    d('Music',        'Sep 14, 2025', MUSIC),
+    d('Pictures',     'Feb 14, 2026', PICS),
+];
+
+const FILESYSTEM: Record<string, FsEntry[]> = {
+    Home:         HOME,
+    AirDrop:      [],
+    Recents:      [],
+    Applications: APPS,
+    Desktop:      DESKTOP,
+    Documents:    DOCS,
+    Downloads:    DOWNLOADS,
+    Music:        MUSIC,
+    Pictures:     PICS,
+};
+
+// ─── Sidebar data ─────────────────────────────────────────────────────────────
+
+interface SidebarItem {
+    id: string;
+    label: string;
+    icon: LucideIcon;
+    color: string;
+    root: string;
 }
 
-function MarkdownRenderer({ raw }: { raw: string }) {
-    const lines = raw.split('\n');
-    const nodes: ReactNode[] = [];
-    let listItems: string[] = [];
+const FAVORITES: SidebarItem[] = [
+    { id: 'airdrop',      label: 'AirDrop',      icon: Wifi,      color: 'text-blue-400',   root: 'AirDrop'      },
+    { id: 'recents',      label: 'Recents',      icon: Clock,     color: 'text-gray-400',   root: 'Recents'      },
+    { id: 'applications', label: 'Applications', icon: AppWindow, color: 'text-blue-500',   root: 'Applications' },
+    { id: 'desktop',      label: 'Desktop',      icon: Monitor,   color: 'text-blue-400',   root: 'Desktop'      },
+    { id: 'documents',    label: 'Documents',    icon: FileText,  color: 'text-blue-500',   root: 'Documents'    },
+    { id: 'downloads',    label: 'Downloads',    icon: Download,  color: 'text-blue-500',   root: 'Downloads'    },
+    { id: 'music',        label: 'Music',        icon: Music,     color: 'text-red-400',    root: 'Music'        },
+    { id: 'pictures',     label: 'Pictures',     icon: ImageIcon, color: 'text-yellow-500', root: 'Pictures'     },
+];
 
-    const flushList = () => {
-        if (listItems.length === 0) return;
-        nodes.push(
-            <ul key={`ul-${nodes.length}`} className="list-disc list-inside space-y-1 text-[14px] text-gray-700 my-2">
-                {listItems.map((item, i) => (
-                    <li key={i}>{renderInline(item)}</li>
-                ))}
-            </ul>
-        );
-        listItems = [];
-    };
+const LOCATIONS: SidebarItem[] = [
+    { id: 'home', label: 'Aahil', icon: House, color: 'text-gray-500', root: 'Home' },
+];
 
-    lines.forEach((line, i) => {
-        if (line.startsWith('# ')) {
-            flushList();
-            nodes.push(<h1 key={i} className="text-[22px] font-bold text-gray-900 mt-2 mb-1">{renderInline(line.slice(2))}</h1>);
-        } else if (line.startsWith('## ')) {
-            flushList();
-            nodes.push(<h2 key={i} className="text-[16px] font-semibold text-gray-800 mt-5 mb-1">{renderInline(line.slice(3))}</h2>);
-        } else if (line.startsWith('### ')) {
-            flushList();
-            nodes.push(<h3 key={i} className="text-[14px] font-semibold text-gray-700 mt-3 mb-0.5">{renderInline(line.slice(4))}</h3>);
-        } else if (line.startsWith('- ')) {
-            listItems.push(line.slice(2));
-        } else if (line.trim() === '---') {
-            flushList();
-            nodes.push(<hr key={i} className="my-4 border-gray-200" />);
-        } else if (line.trim() === '') {
-            flushList();
-        } else {
-            flushList();
-            nodes.push(<p key={i} className="text-[14px] text-gray-700 leading-relaxed">{renderInline(line)}</p>);
-        }
-    });
+const TAGS = [
+    { label: 'Red',    dot: 'bg-red-500'    },
+    { label: 'Orange', dot: 'bg-orange-400' },
+    { label: 'Green',  dot: 'bg-green-500'  },
+];
 
-    flushList();
-    return <div className="space-y-1">{nodes}</div>;
+// ─── Icons ────────────────────────────────────────────────────────────────────
+
+function FolderIcon({ name, size }: { name: string; size: number }) {
+    switch (name) {
+        case 'Applications': return <AppWindow  size={size} className="text-blue-500   flex-none" />;
+        case 'Desktop':      return <Monitor    size={size} className="text-blue-400   flex-none" />;
+        case 'Documents':    return <FileText   size={size} className="text-blue-500   flex-none" />;
+        case 'Downloads':    return <Download   size={size} className="text-blue-500   flex-none" />;
+        case 'Movies':       return <Film       size={size} className="text-gray-500   flex-none" />;
+        case 'Music':        return <Music      size={size} className="text-red-400    flex-none" />;
+        case 'Pictures':     return <ImageIcon  size={size} className="text-yellow-500 flex-none" />;
+        case 'Pets':         return <Folder     size={size} className="text-pink-400   flex-none" />;
+        default:             return <Folder     size={size} className="text-blue-400   flex-none" />;
+    }
 }
 
-// ─── Content panes ────────────────────────────────────────────────────────────
-
-function MdPane() {
-    const [raw, setRaw] = useState<string | null>(null);
-
-    useEffect(() => {
-        fetch('/files/me.md')
-            .then(r => r.text())
-            .then(setRaw)
-            .catch(() => setRaw('# Could not load me.md'));
-    }, []);
-
-    if (raw === null)
-        return <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">Loading…</div>;
-
-    return (
-        <div className="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar bg-white">
-            <MarkdownRenderer raw={raw} />
-        </div>
-    );
+function FileIcon({ kind, size }: { kind: FileKind; size: number }) {
+    switch (kind) {
+        case 'app':   return <AppWindow  size={size} className="text-blue-600   flex-none" />;
+        case 'img':   return <ImageIcon  size={size} className="text-green-600  flex-none" />;
+        case 'music': return <Music      size={size} className="text-pink-500   flex-none" />;
+        case 'glb':   return <Box        size={size} className="text-purple-500 flex-none" />;
+        case 'txt':   return <FileText   size={size} className="text-gray-500   flex-none" />;
+        case 'vcf':   return <User       size={size} className="text-green-600  flex-none" />;
+        case 'pdf':   return <FileText   size={size} className="text-red-500    flex-none" />;
+        default:      return <FileText   size={size} className="text-blue-600   flex-none" />;
+    }
 }
 
-function PdfPane() {
-    return (
-        <div className="flex-1 bg-gray-100 overflow-hidden">
-            <object
-                data="/files/resume.pdf"
-                type="application/pdf"
-                className="w-full h-full"
-            >
-                <div className="flex flex-col items-center justify-center h-full gap-3 text-gray-500 text-sm">
-                    <FileText size={36} className="text-gray-400" />
-                    <p>PDF preview unavailable in this browser.</p>
-                    <a
-                        href="/files/resume.pdf"
-                        download
-                        className="flex items-center gap-1.5 px-4 py-1.5 bg-gray-200 hover:bg-gray-300 rounded-full text-gray-700 text-[13px] transition-colors"
-                    >
-                        <Download size={13} /> Download resume.pdf
-                    </a>
-                </div>
-            </object>
-        </div>
-    );
+function EntryIcon({ entry, size = 14 }: { entry: FsEntry; size?: number }) {
+    if (entry.type === 'folder') return <FolderIcon name={entry.name} size={size} />;
+    return <FileIcon kind={entry.kind} size={size} />;
 }
 
-function VcfPane() {
-    return (
-        <div className="flex-1 flex flex-col items-center justify-center bg-white gap-6">
-            {/* Card */}
-            <div className="w-72 rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-                <div className="h-20 bg-gradient-to-br from-blue-500 to-blue-700" />
-                <div className="px-6 pb-6 -mt-8">
-                    <div className="w-16 h-16 rounded-full bg-white shadow-md flex items-center justify-center mb-3 border-2 border-white">
-                        <User size={28} className="text-blue-600" />
-                    </div>
-                    <p className="text-[17px] font-semibold text-gray-900">Aahil Rupsi</p>
-                    <p className="text-[13px] text-gray-500 mb-4">Software Engineer</p>
-                    <div className="space-y-1.5 text-[13px] text-gray-600">
-                        <p>aahil@mckinneyandco.com</p>
-                    </div>
-                </div>
-            </div>
+// Kinds that open in PreviewWindow
+const PREVIEWABLE = new Set<FileKind>(['md', 'pdf', 'vcf', 'img']);
 
-            {/* Download */}
-            <a
-                href="/files/contact.vcf"
-                download="aahil-rupsi.vcf"
-                className="flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-[13px] font-medium transition-colors"
-            >
-                <Download size={13} /> Add to Contacts
-            </a>
-        </div>
-    );
-}
-
-function FolderPane() {
-    return (
-        <div className="flex-1 flex flex-col items-center justify-center bg-white gap-3 text-center px-8">
-            <Folder size={48} className="text-blue-400" />
-            <p className="text-[15px] font-medium text-gray-700">Source Files</p>
-            <p className="text-[13px] text-gray-400 max-w-xs leading-relaxed">
-                Browse the source code for this portfolio on GitHub.
-                Links will open once the repo is public.
-            </p>
-        </div>
-    );
-}
-
-// ─── Sidebar item icon ────────────────────────────────────────────────────────
-
-function ItemIcon({ kind }: { kind: ItemKind }) {
-    if (kind === 'folder') return <Folder size={16} className="text-blue-400 flex-none" />;
-    if (kind === 'vcf')    return <User    size={16} className="text-green-600 flex-none" />;
-    return <FileText size={16} className={kind === 'pdf' ? 'text-red-500 flex-none' : 'text-blue-600 flex-none'} />;
-}
-
-// ─── Main component ───────────────────────────────────────────────────────────
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function FinderWindow() {
-    const { closeWindow } = useDesktop();
-    const [selected, setSelected] = useState<string>('me');
+    const { closeWindow, openPreview } = useDesktop();
 
-    const item = ITEMS.find(i => i.id === selected)!;
+    const [sidebarId, setSidebarId]       = useState<string>('documents');
+    const [pathStack, setPathStack]       = useState<string[]>([]);
+    const [selectedName, setSelectedName] = useState<string | null>(null);
+
+    const allItems    = [...FAVORITES, ...LOCATIONS];
+    const activeSidebar = allItems.find(i => i.id === sidebarId) ?? FAVORITES[4];
+    const root        = activeSidebar.root;
+
+    const getEntries = (): FsEntry[] => {
+        let entries = FILESYSTEM[root] ?? [];
+        for (const seg of pathStack) {
+            const sub = entries.find(e => e.type === 'folder' && e.name === seg) as FsFolder | undefined;
+            entries = sub?.children ?? [];
+        }
+        return entries;
+    };
+
+    const entries = getEntries();
+
+    const breadcrumbParts = ['Aahil'];
+    if (root !== 'Home') breadcrumbParts.push(root);
+    breadcrumbParts.push(...pathStack);
+    const breadcrumb = breadcrumbParts.join(' › ');
+
+    const navigateSidebar = (item: SidebarItem) => {
+        setSidebarId(item.id);
+        setPathStack([]);
+        setSelectedName(null);
+    };
+
+    const handleOpen = (entry: FsEntry) => {
+        if (entry.type === 'folder') {
+            setPathStack(prev => [...prev, entry.name]);
+            setSelectedName(null);
+        } else if (PREVIEWABLE.has(entry.kind)) {
+            openPreview({ name: entry.name, kind: entry.kind } as PreviewTarget);
+        }
+    };
+
+    const goBack = () => {
+        setPathStack(prev => prev.slice(0, -1));
+        setSelectedName(null);
+    };
+
+    // ── Sidebar ──────────────────────────────────────────────────────────────
+
+    const renderItem = (item: SidebarItem) => (
+        <button
+            key={item.id}
+            onClick={() => navigateSidebar(item)}
+            className={`flex items-center gap-2 py-[3px] px-2 rounded-[5px] cursor-default text-left select-none ${
+                sidebarId === item.id ? 'bg-[#0062d6]' : 'hover:bg-black/[0.06]'
+            }`}
+            style={{ width: 'calc(100% - 8px)', margin: '0 4px' }}
+        >
+            <item.icon
+                size={14}
+                className={`flex-none ${sidebarId === item.id ? 'text-white' : item.color}`}
+            />
+            <span className={`text-[12px] truncate ${sidebarId === item.id ? 'text-white' : 'text-gray-700'}`}>
+                {item.label}
+            </span>
+        </button>
+    );
 
     const Sidebar = (
-        <div className="py-3 select-none">
-            <p className="px-4 text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Favorites</p>
-            {ITEMS.map(it => (
-                <button
-                    key={it.id}
-                    onClick={() => setSelected(it.id)}
-                    className={`w-full flex items-center gap-2 px-3 py-1.5 mx-1 rounded-[6px] text-[13px] transition-colors cursor-default text-left ${
-                        selected === it.id
-                            ? 'bg-[#0062d6] text-white'
-                            : 'text-gray-700 hover:bg-black/5'
-                    }`}
-                    style={{ width: 'calc(100% - 8px)' }}
+        <div className="py-2">
+            <p className="px-3 pt-1 pb-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider select-none">
+                Favorites
+            </p>
+            {FAVORITES.map(renderItem)}
+
+            <p className="px-3 pt-4 pb-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider select-none">
+                Locations
+            </p>
+            {LOCATIONS.map(renderItem)}
+
+            <p className="px-3 pt-4 pb-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider select-none">
+                Tags
+            </p>
+            {TAGS.map(tag => (
+                <div
+                    key={tag.label}
+                    className="flex items-center gap-2 py-[3px] px-2 rounded-[5px] hover:bg-black/[0.06] cursor-default select-none"
+                    style={{ width: 'calc(100% - 8px)', margin: '0 4px' }}
                 >
-                    <ItemIcon kind={it.kind} />
-                    <span className={selected === it.id ? 'text-white' : ''}>{it.name}</span>
-                </button>
+                    <span className={`w-2.5 h-2.5 rounded-full flex-none ${tag.dot}`} />
+                    <span className="text-[12px] text-gray-700">{tag.label}</span>
+                </div>
             ))}
         </div>
     );
 
+    const windowTitle = pathStack.length > 0 ? pathStack[pathStack.length - 1] : root === 'Home' ? 'Aahil' : root;
+
     return (
-        <DraggableWindow id="finder" resizable minWidth={540} minHeight={380}>
+        <DraggableWindow id="finder" resizable minWidth={580} minHeight={400}>
             <MacWindow
                 onClose={() => closeWindow('finder')}
-                title={item.name}
+                title={windowTitle}
                 theme="light"
-                className="w-full h-full flex flex-col"
+                className="w-full h-full"
                 sidebar={Sidebar}
-                sidebarClassName="w-48 bg-gray-50 border-r border-gray-200"
-                contentClassName="flex flex-col"
+                sidebarClassName="w-44 bg-[#f0f0f0] border-r border-gray-300/70"
+                contentClassName="overflow-hidden"
             >
-                {selected === 'me'      && <MdPane />}
-                {selected === 'resume'  && <PdfPane />}
-                {selected === 'contact' && <VcfPane />}
-                {selected === 'source'  && <FolderPane />}
+                {/* ── Toolbar ──────────────────────────────────────────── */}
+                <div className="flex items-center gap-1 px-2 h-9 border-b border-gray-200 bg-[#f9f9f9] flex-none">
+                    <button
+                        onClick={goBack}
+                        disabled={pathStack.length === 0}
+                        className="p-1 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-default transition-colors"
+                    >
+                        <ChevronLeft size={16} className="text-gray-600" />
+                    </button>
+                    <button disabled className="p-1 rounded opacity-30 cursor-default">
+                        <ChevronRight size={16} className="text-gray-600" />
+                    </button>
+
+                    <div className="flex-1" />
+
+                    <div className="flex items-center bg-gray-200 rounded-md p-0.5 gap-0.5">
+                        <button className="p-1 rounded bg-white shadow-sm cursor-default">
+                            <List size={14} className="text-gray-600" />
+                        </button>
+                        <button className="p-1 rounded opacity-40 cursor-default">
+                            <LayoutGrid size={14} className="text-gray-500" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* ── Column headers ────────────────────────────────────── */}
+                <div className="flex items-center h-6 border-b border-gray-200 bg-[#f5f5f5] flex-none select-none">
+                    <span className="flex-1 pl-8 text-[11px] font-medium text-gray-500">Name</span>
+                    <span className="w-[130px] text-[11px] font-medium text-gray-500">Date Added</span>
+                    <span className="w-16 text-[11px] font-medium text-gray-500 text-right pr-3">Size</span>
+                    <span className="w-28 text-[11px] font-medium text-gray-500">Kind</span>
+                </div>
+
+                {/* ── File list ─────────────────────────────────────────── */}
+                <div
+                    className="flex-1 overflow-y-auto bg-white custom-scrollbar"
+                    onClick={() => setSelectedName(null)}
+                >
+                    {entries.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full gap-2 select-none">
+                            {root === 'AirDrop' ? (
+                                <>
+                                    <Wifi size={40} className="text-blue-300" />
+                                    <p className="text-[13px] text-gray-400">AirDrop is not available</p>
+                                </>
+                            ) : (
+                                <p className="text-[13px] text-gray-400">This folder is empty.</p>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="pt-0.5">
+                            {entries.map(entry => {
+                                const sel = selectedName === entry.name;
+                                return (
+                                    <div
+                                        key={entry.name}
+                                        className={`flex items-center h-[22px] cursor-default select-none ${
+                                            sel ? 'bg-[#0062d6]' : 'hover:bg-[#e8edf5]'
+                                        }`}
+                                        onClick={e => { e.stopPropagation(); setSelectedName(entry.name); }}
+                                        onDoubleClick={() => handleOpen(entry)}
+                                    >
+                                        <span className={`flex items-center gap-1.5 flex-1 text-[12px] truncate pl-3 ${sel ? 'text-white' : 'text-gray-800'}`}>
+                                            <EntryIcon entry={entry} size={14} />
+                                            {entry.name}
+                                        </span>
+                                        <span className={`w-[130px] text-[12px] ${sel ? 'text-white/80' : 'text-gray-400'}`}>
+                                            {entry.dateAdded}
+                                        </span>
+                                        <span className={`w-16 text-[12px] text-right pr-3 ${sel ? 'text-white/80' : 'text-gray-400'}`}>
+                                            {entry.size}
+                                        </span>
+                                        <span className={`w-28 text-[12px] ${sel ? 'text-white/80' : 'text-gray-400'}`}>
+                                            {entry.kindLabel}
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+
+                {/* ── Path bar ──────────────────────────────────────────── */}
+                <div className="flex items-center justify-between px-3 h-[22px] border-t border-gray-200 bg-[#f5f5f5] flex-none select-none">
+                    <span className="text-[11px] text-gray-400 truncate">{breadcrumb}</span>
+                    <span className="text-[11px] text-gray-400 flex-none ml-4">
+                        {entries.length} {entries.length === 1 ? 'item' : 'items'}
+                    </span>
+                </div>
             </MacWindow>
         </DraggableWindow>
     );

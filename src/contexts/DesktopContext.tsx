@@ -46,7 +46,7 @@ export function wallpaperUrl(wallpaper: string): string {
 
 export interface PreviewTarget {
     name: string;
-    kind: 'md' | 'pdf' | 'vcf';
+    kind: 'md' | 'pdf' | 'vcf' | 'img';
 }
 
 interface DesktopContextType {

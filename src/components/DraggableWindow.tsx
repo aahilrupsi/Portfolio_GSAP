@@ -32,6 +32,7 @@ export default function DraggableWindow({ id, children, resizable = false, minWi
         const [instance] = Draggable.create(el, {
             trigger: el.querySelector('.drag-handle') as HTMLElement,
             // bounds: 'body', // Removed to avoid issues with CSS3D transforms
+            zIndexBoost: false, // React state manages z-index; GSAP must not override it
             liveSnap: {
                 y: (y: number) => Math.max(NAVBAR_HEIGHT, y),
             },
