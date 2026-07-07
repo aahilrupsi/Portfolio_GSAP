@@ -1,0 +1,17 @@
+export type WindowType = 'about' | 'settings' | 'notes' | 'safari';
+
+export interface WindowState {
+    isOpen: boolean;
+    zIndex: number;
+    x: number;
+    y: number;
+}
+
+export type WindowsState = Record<WindowType, WindowState>;
+
+export const WINDOW_DEFAULTS: Record<WindowType, { width: number; height: number }> = {
+    about: { width: 300, height: 480 },
+    settings: { width: 720, height: 540 },
+    notes: { width: 450, height: 500 },
+    safari: { width: 900, height: 600 },
+};
