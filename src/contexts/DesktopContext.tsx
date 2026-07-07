@@ -14,6 +14,8 @@ const initialWindowsState: WindowsState = {
     notes:    { isOpen: false, zIndex: 100, x: 0, y: 0 },
     safari:   { isOpen: false, zIndex: 100, x: 0, y: 0 },
     contacts: { isOpen: false, zIndex: 100, x: 0, y: 0 },
+    finder:   { isOpen: false, zIndex: 100, x: 0, y: 0 },
+    preview:  { isOpen: false, zIndex: 100, x: 0, y: 0 },
 };
 
 // Compress an image file to a base64 JPEG (max 1920px, 80% quality)
@@ -42,6 +44,11 @@ export function wallpaperUrl(wallpaper: string): string {
     return wallpaper === 'default' ? '/images/wallpaper.jpg' : wallpaper;
 }
 
+export interface PreviewTarget {
+    name: string;
+    kind: 'md' | 'pdf' | 'vcf';
+}
+
 interface DesktopContextType {
     openWindow: (type: WindowType, x?: number, y?: number) => void;
     closeWindow: (type: WindowType) => void;
@@ -56,6 +63,8 @@ interface DesktopContextType {
     soundEnabled: boolean;
     setSoundEnabled: (v: boolean) => void;
     playSound: (type: 'open' | 'close') => void;
+    previewTarget: PreviewTarget | null;
+    openPreview: (target: PreviewTarget) => void;
 }
 
 export const DesktopContext = createContext<DesktopContextType>({
@@ -72,6 +81,8 @@ export const DesktopContext = createContext<DesktopContextType>({
     soundEnabled: true,
     setSoundEnabled: () => {},
     playSound: () => {},
+    previewTarget: null,
+    openPreview: () => {},
 });
 
 export const useDesktop = () => useContext(DesktopContext);
@@ -82,6 +93,8 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
     const [wallpaper, setWallpaperState] = useState<string>(
         () => localStorage.getItem('portfolio-wallpaper') || 'default'
     );
+    const [previewTarget, setPreviewTarget] = useState<PreviewTarget | null>(null);
+
     const [soundEnabled, setSoundEnabledState] = useState<boolean>(
         () => localStorage.getItem('portfolio-sound') !== 'false'
     );
@@ -168,8 +181,8 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
                     const { width: wWidth, height: wHeight } = WINDOW_DEFAULTS[type];
                     const maxX = Math.max(0, viewportWidth - wWidth);
                     const newX = Math.min(Math.max(0, window.x), maxX);
-                    const maxY = Math.max(0, viewportHeight - wHeight);
-                    const newY = Math.min(Math.max(0, window.y), maxY);
+                    const maxY = Math.max(28, viewportHeight - wHeight);
+                    const newY = Math.min(Math.max(28, window.y), maxY);
                     if (newX !== window.x || newY !== window.y) {
                         newState[type] = { ...window, x: newX, y: newY };
                         hasChanged = true;
@@ -182,6 +195,11 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
 
     const wakeScreen = () => setIsSleeping(false);
     const sleepScreen = () => setIsSleeping(true);
+
+    const openPreview = (target: PreviewTarget) => {
+        setPreviewTarget(target);
+        openWindow('preview');
+    };
 
     const restartSequence = () => {
         setIsSleeping(true);
@@ -197,6 +215,7 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
             windowsState, sleepScreen, restartSequence,
             wallpaper, setWallpaper,
             soundEnabled, setSoundEnabled, playSound,
+            previewTarget, openPreview,
         }}>
             <div className="w-full h-full relative">
                 {children}
