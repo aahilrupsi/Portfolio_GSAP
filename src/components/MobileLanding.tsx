@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { Mail, ExternalLink, GitBranch, FileText, Monitor } from 'lucide-react';
 
-const NOTICE = "This portfolio is a macOS desktop experience. Visit on a larger screen for the full interactive version.";
+const NOTICE = "This portfolio is a macOS desktop experience. Visit on a larger screen for the full interactive version. Quick links have been provided below.";
 
 const LINKS = [
     {

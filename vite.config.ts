@@ -17,7 +17,10 @@ export default defineConfig({
       },
     }), tailwindcss()
   ],
-resolve: {
+  server: {
+    allowedHosts: ['loreless-muoi-whimsically.ngrok-free.dev'],
+  },
+  resolve: {
     alias: {
       '#components': resolve(__dirname, 'src/components'),
       '#constants': resolve(__dirname, 'src/constants'),
