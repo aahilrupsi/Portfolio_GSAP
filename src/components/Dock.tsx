@@ -8,7 +8,7 @@ import notesIcon from '../assets/dock/notes.png';
 import settingsIcon from '../assets/dock/settings.png';
 import safariIcon from '../assets/dock/safari.png';
 import contactsIcon from '../assets/dock/contacts.png';
-import spotifyIcon from '../assets/dock/spotify.png';
+import mailIcon from '../assets/dock/mail.png';
 
 interface DockIconProps {
     label: string;
@@ -72,10 +72,8 @@ export default function Dock() {
                 {/* Safari */}
                 <DockIcon label="Safari" isOpen={windowsState.safari.isOpen} onClick={() => { playSound('open'); openWindow('safari'); }} src={safariIcon} tooltipId="dock-tt" />
 
-                <div className="dock-separator" />
-
-                {/* Spotify */}
-                <DockIcon label="Spotify" isOpen={windowsState.spotify.isOpen} onClick={() => { playSound('open'); openWindow('spotify'); }} src={spotifyIcon} tooltipId="dock-tt" />
+                {/* Mail */}
+                <DockIcon label="Mail" isOpen={windowsState.mail.isOpen} onClick={() => { playSound('open'); openWindow('mail'); }} src={mailIcon} tooltipId="dock-tt" />
             </div>
 
             <Tooltip
