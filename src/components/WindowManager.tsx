@@ -6,6 +6,7 @@ import SafariWindow from './apps/SafariWindow';
 import ContactsWindow from './apps/ContactsWindow';
 import FinderWindow from './apps/FinderWindow';
 import PreviewWindow from './apps/PreviewWindow';
+import SpotifyWindow from './apps/SpotifyWindow';
 
 export default function WindowManager() {
     const { windowsState } = useDesktop();
@@ -21,6 +22,7 @@ export default function WindowManager() {
             {windowsState.contacts.isOpen && <ContactsWindow />}
             {windowsState.finder.isOpen && <FinderWindow />}
             {windowsState.preview.isOpen && <PreviewWindow />}
+            {windowsState.spotify.isOpen && <SpotifyWindow />}
         </div>
     );
 }

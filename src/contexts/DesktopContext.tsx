@@ -16,6 +16,7 @@ const initialWindowsState: WindowsState = {
     contacts: { isOpen: false, zIndex: 100, x: 0, y: 0 },
     finder:   { isOpen: false, zIndex: 100, x: 0, y: 0 },
     preview:  { isOpen: false, zIndex: 100, x: 0, y: 0 },
+    spotify:  { isOpen: false, zIndex: 100, x: 0, y: 0 },
 };
 
 // Compress an image file to a base64 JPEG (max 1920px, 80% quality)

@@ -1,4 +1,4 @@
-export type WindowType = 'about' | 'settings' | 'notes' | 'safari' | 'contacts' | 'finder' | 'preview';
+export type WindowType = 'about' | 'settings' | 'notes' | 'safari' | 'contacts' | 'finder' | 'preview' | 'spotify';
 
 export interface WindowState {
     isOpen: boolean;
@@ -17,4 +17,5 @@ export const WINDOW_DEFAULTS: Record<WindowType, { width: number; height: number
     contacts: { width: 800,  height: 560 },
     finder:   { width: 820,  height: 540 },
     preview:  { width: 700,  height: 520 },
+    spotify:  { width: 400,  height: 640 },
 };
