@@ -1,6 +1,7 @@
 import MacWindow from '../MacWindow';
 import DraggableWindow from '../DraggableWindow';
 import { useDesktop } from '../../contexts/DesktopContext';
+import aboutThisMacImage from '../../assets/dock/about_this_mac_image.png';
 
 export default function AboutThisMac() {
     const { closeWindow } = useDesktop();
@@ -12,10 +13,11 @@ export default function AboutThisMac() {
                 className="w-[300px] bg-[#22201F] text-white/90"
             >
                 <div className="flex flex-col items-center p-8 pt-16">
-                    {/* Laptop Placeholder */}
-                    <div className="w-32 h-24 bg-white/10 rounded-lg mb-6 flex items-center justify-center text-xs text-white/50">
-                        Laptop Image Here
-                    </div>
+                    <img
+                        src={aboutThisMacImage}
+                        alt="MacBook Air"
+                        className="w-32 h-24 object-contain mb-6"
+                    />
 
                     <h1 className="text-2xl font-bold mb-1 tracking-tight">MacBook Air</h1>
                     <p className="text-xs text-white/50 font-medium mb-6">13-inch, M4, 2025</p>
@@ -28,7 +30,7 @@ export default function AboutThisMac() {
                         <span>16 GB</span>
 
                         <span className="text-right text-white/60 font-medium">Serial number</span>
-                        <span>M59P2CQ4YJ</span>
+                        <span>L59P2BW4KP</span>
 
                         <span className="text-right text-white/60 font-medium">macOS</span>
                         <span>Tahoe 26.3.1 (a)</span>
@@ -39,7 +41,7 @@ export default function AboutThisMac() {
                     </button>
 
                     <div className="text-center text-[10px] text-white/40 leading-[14px]">
-                        <a href="#" className="underline hover:text-white/60 transition-colors">Regulatory Certification</a>
+                        <p className="underline hover:text-white/60 transition-colors">Regulatory Certification</p>
                         <br />
                         ™ and © 1983-2026 Apple Inc.<br />
                         All Rights Reserved.

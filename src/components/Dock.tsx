@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import { Tooltip } from 'react-tooltip';
-import { SquareTerminal } from 'lucide-react';
 import { useDesktop } from '../contexts/DesktopContext';
 import gsap from 'gsap';
 
@@ -11,15 +10,7 @@ import safariIcon from '../assets/dock/safari.png';
 import contactsIcon from '../assets/dock/contacts.png';
 import spotifyIcon from '../assets/dock/spotify.png';
 import mailIcon from '../assets/dock/mail.png';
-
-// Placeholder until a real dock icon PNG is dropped into src/assets/dock/terminal.png
-function TerminalIcon() {
-    return (
-        <div className="w-14 h-14 3xl:w-20 3xl:h-20 rounded-md bg-gradient-to-br from-[#3a3a3c] to-[#0a0a0a] border border-white/10 flex items-center justify-center">
-            <SquareTerminal className="w-[55%] h-[55%] text-[#2ee66b]" strokeWidth={1.75} />
-        </div>
-    );
-}
+import terminalIcon from '../assets/dock/terminal.png';
 
 interface DockIconProps {
     label: string;
@@ -92,9 +83,7 @@ export default function Dock() {
                 <DockIcon label="Mail" isOpen={windowsState.mail.isOpen} onClick={() => { playSound('open'); openWindow('mail'); }} src={mailIcon} tooltipId="dock-tt" />
 
                 {/* Terminal */}
-                <DockIcon label="Terminal" isOpen={windowsState.terminal.isOpen} onClick={() => { playSound('open'); openWindow('terminal'); }} tooltipId="dock-tt">
-                    <TerminalIcon />
-                </DockIcon>
+                <DockIcon label="Terminal" isOpen={windowsState.terminal.isOpen} onClick={() => { playSound('open'); openWindow('terminal'); }} src={terminalIcon} tooltipId="dock-tt" />
             </div>
 
             <Tooltip
