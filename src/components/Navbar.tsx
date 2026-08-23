@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { navLinks } from '#constants';
+import { PROFILE } from '#constants/profile';
 import { useDesktop } from '../contexts/DesktopContext';
 import { type WindowType } from '../types/desktop';
 import { Apple, Laptop, Settings, Moon, RotateCcw, Power } from 'lucide-react';
@@ -195,7 +196,7 @@ const Navbar = () => {
                         >
                             <button className="menu-item">
                                 <span className="flex items-center gap-2">
-                                    <Laptop size={14} className="opacity-70" /> Aahil's Hardware
+                                    <Laptop size={14} className="opacity-70" /> {PROFILE.firstName}'s Hardware
                                 </span>
                             </button>
                         </div>

@@ -2,13 +2,14 @@ import { useState, useRef, useEffect } from 'react';
 import MacWindow from '../MacWindow';
 import DraggableWindow from '../DraggableWindow';
 import { useDesktop } from '../../contexts/DesktopContext';
+import { PROFILE } from '../../constants/profile';
 import gsap from 'gsap';
 
 export default function NotesWindow() {
     const { closeWindow, windowsState } = useDesktop();
     const [title, setTitle] = useState('Portfolio Guide');
     const [content, setContent] = useState(
-        'My name is Aahil Rupsi. Welcome to my portfolio! Here is some stuff for you to try out.\n\n' +
+        `My name is ${PROFILE.name}. Welcome to my portfolio! Here is some stuff for you to try out.\n\n` +
         '1. Click and drag the "Welcome" text, its made to be interactive. See how far you can stretch it.\n' +
         '2. Explore the apps in the dock.\n' +
         '3. Feel free to edit this note - it\'s just for you!\n' +

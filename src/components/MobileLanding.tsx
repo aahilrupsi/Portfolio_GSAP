@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { Mail, ExternalLink, GitBranch, FileText, Monitor } from 'lucide-react';
+import { PROFILE, MAILTO } from '../constants/profile';
 
 const NOTICE = "This portfolio is a macOS desktop experience. Visit on a larger screen for the full interactive version. Quick links have been provided below.";
 
@@ -9,19 +10,19 @@ const LINKS = [
         icon: Mail,
         label: 'Email',
         descriptor: 'mailto',
-        href: 'mailto:aahil@mckinneyandco.com',
+        href: MAILTO,
     },
     {
         icon: ExternalLink,
         label: 'LinkedIn',
         descriptor: 'linkedin.com',
-        href: 'https://linkedin.com/in/aahilrupsi',
+        href: PROFILE.linkedin.url,
     },
     {
         icon: GitBranch,
         label: 'GitHub',
         descriptor: 'github.com',
-        href: 'https://github.com/aahilrupsi',
+        href: PROFILE.github.url,
     },
     {
         icon: FileText,
@@ -154,7 +155,7 @@ export default function MobileLanding() {
                         className="text-[52px] leading-none font-bold text-white tracking-tight"
                         style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
-                        Aahil Rupsi
+                        {PROFILE.name}
                     </h1>
                     <p className="text-white text-[15px] mt-2.5 font-medium tracking-wide opacity-80">
                         Software Engineer
@@ -208,7 +209,7 @@ export default function MobileLanding() {
 
             {/* Footer — anchored to bottom */}
             <p className="relative z-10 text-white/60 text-[11px] mt-8">
-                © {new Date().getFullYear()} Aahil Rupsi
+                © {new Date().getFullYear()} {PROFILE.name}
             </p>
         </div>
     );

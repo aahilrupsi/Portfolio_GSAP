@@ -7,11 +7,12 @@ import type { LucideIcon } from 'lucide-react';
 import MacWindow from '../MacWindow';
 import DraggableWindow from '../DraggableWindow';
 import { useDesktop } from '../../contexts/DesktopContext';
+import { PROFILE } from '../../constants/profile';
 import gsap from 'gsap';
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-const OWNER_EMAIL = 'aahil@mckinneyandco.com';
+const OWNER_EMAIL = PROFILE.email;
 
 type MailboxId = 'inbox' | 'sent' | 'drafts' | 'trash';
 
@@ -28,10 +29,10 @@ interface MailMessage {
 const SEED_INBOX: MailMessage[] = [
     {
         id: 'welcome',
-        from: { name: 'Aahil Rupsi', email: OWNER_EMAIL },
+        from: { name: PROFILE.name, email: OWNER_EMAIL },
         subject: 'Say hi 👋',
         preview: "Thanks for poking around my portfolio — if you'd like to reach me directly...",
-        body: "Thanks for poking around my portfolio! If you'd like to reach me directly, hit \"New Message\" above and send something over — it'll land in my real inbox.\n\n— Aahil",
+        body: `Thanks for poking around my portfolio! If you'd like to reach me directly, hit "New Message" above and send something over — it'll land in my real inbox.\n\n— ${PROFILE.firstName}`,
         date: 'Today',
         read: false,
     },
@@ -39,7 +40,7 @@ const SEED_INBOX: MailMessage[] = [
         id: 'github',
         from: { name: 'GitHub', email: 'notifications@github.com' },
         subject: '[Portfolio_GSAP] New star on your repository',
-        preview: 'Someone starred aahilrupsi/Portfolio_GSAP',
+        preview: `Someone starred ${PROFILE.github.handle}/Portfolio_GSAP`,
         body: 'Someone just starred your repository Portfolio_GSAP. Keep building!',
         date: 'Yesterday',
         read: true,

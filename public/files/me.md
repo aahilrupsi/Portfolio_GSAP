@@ -30,5 +30,5 @@ Currently at **McKinney & Co**, building [what you do here].
 ## Find me
 
 - [GitHub](https://github.com/aahilrupsi)
-- [LinkedIn](https://linkedin.com/in/YOUR_HANDLE)
-- reachout@
+- [LinkedIn](https://linkedin.com/in/aahilrupsi)
+- [Email](mailto:reachout@aahilrupsi.com)

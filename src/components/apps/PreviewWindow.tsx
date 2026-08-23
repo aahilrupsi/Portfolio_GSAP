@@ -3,6 +3,7 @@ import { FileText, Download, User, ImageIcon } from 'lucide-react';
 import MacWindow from '../MacWindow';
 import DraggableWindow from '../DraggableWindow';
 import { useDesktop } from '../../contexts/DesktopContext';
+import { PROFILE } from '../../constants/profile';
 
 // ─── Markdown renderer ────────────────────────────────────────────────────────
 
@@ -143,9 +144,9 @@ function VcfPane() {
                     <div className="w-16 h-16 rounded-full bg-white shadow-md flex items-center justify-center mb-3 border-2 border-white">
                         <User size={28} className="text-blue-600" />
                     </div>
-                    <p className="text-[17px] font-semibold text-gray-900">Aahil Rupsi</p>
-                    <p className="text-[13px] text-gray-500 mb-4">Software Engineer</p>
-                    <p className="text-[13px] text-gray-600">aahil@mckinneyandco.com</p>
+                    <p className="text-[17px] font-semibold text-gray-900">{PROFILE.name}</p>
+                    <p className="text-[13px] text-gray-500 mb-4">{PROFILE.title}</p>
+                    <p className="text-[13px] text-gray-600">{PROFILE.email}</p>
                 </div>
             </div>
             <a

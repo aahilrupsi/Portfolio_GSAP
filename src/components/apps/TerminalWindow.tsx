@@ -2,28 +2,29 @@ import { useState, useRef, useEffect } from 'react';
 import MacWindow from '../MacWindow';
 import DraggableWindow from '../DraggableWindow';
 import { useDesktop } from '../../contexts/DesktopContext';
+import { PROFILE } from '../../constants/profile';
 import gsap from 'gsap';
 
-const PROMPT = 'aahil@portfolio ~ %';
+const PROMPT = `${PROFILE.firstName.toLowerCase()}@portfolio ~ %`;
 
 const HELP_TEXT =
     'available commands:\n' +
     '  help       show this message\n' +
     '  clear      clear the screen\n' +
     '  whoami     quick summary\n' +
-    '  contact    ways to reach aahil\n' +
+    `  contact    ways to reach ${PROFILE.firstName.toLowerCase()}\n` +
     '  resume     where to find the resume\n' +
     '  projects   where to find project write-ups\n\n' +
-    'anything else is treated as a question and answered by a small AI — try "what does aahil work on?"';
+    `anything else is treated as a question and answered by a small AI — try "what does ${PROFILE.firstName.toLowerCase()} work on?"`;
 
 // Answered locally so common asks don't burn AI requests (or hit the rate limiter) for no reason.
 const LOCAL_ANSWERS: Record<string, string> = {
-    whoami: 'Aahil Rupsi — Software Engineer. Building this portfolio, among other things.',
+    whoami: `${PROFILE.name} — ${PROFILE.title}. Building this portfolio, among other things.`,
     contact:
-        'email:    aahilrupsi@gmail.com\n' +
-        'github:   github.com/aahilrupsi\n' +
-        'linkedin: linkedin.com/in/aahilrupsi\n' +
-        'x:        x.com/aahilrupsi\n\n' +
+        `email:    ${PROFILE.email}\n` +
+        `github:   github.com/${PROFILE.github.handle}\n` +
+        `linkedin: linkedin.com/in/${PROFILE.linkedin.handle}\n` +
+        `x:        x.com/${PROFILE.x.handle}\n\n` +
         '(or just open the Contacts app in the dock)',
     resume: 'resume.pdf is in Finder → Documents. Or ask me anything and I\'ll answer directly.',
     projects: 'check the Safari app\'s start page for a project overview — or ask me about a specific one.',
@@ -95,7 +96,7 @@ export default function TerminalWindow() {
         if (windowsState.terminal.isOpen && lines.length === 0) {
             const today = new Date().toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
             pushLine('system', `Last login: ${today} on ttys000`);
-            pushLine('system', "Hi, I'm a small AI that knows a bit about Aahil. Ask me anything, or type 'help'.");
+            pushLine('system', `Hi, I'm a small AI that knows a bit about ${PROFILE.firstName}. Ask me anything, or type 'help'.`);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [windowsState.terminal.isOpen]);
@@ -188,7 +189,7 @@ export default function TerminalWindow() {
             <div ref={containerRef} className="w-full h-full">
                 <MacWindow
                     onClose={() => closeWindow('terminal')}
-                    title="aahil — zsh — 80×24"
+                    title={`${PROFILE.firstName.toLowerCase()} — zsh — 80×24`}
                     theme="dark"
                     className="w-full h-full flex flex-col"
                     contentClassName="flex-1 bg-[#1a1a1a] flex flex-col"

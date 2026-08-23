@@ -8,6 +8,7 @@ import type { LucideIcon } from 'lucide-react';
 import MacWindow from '../MacWindow';
 import DraggableWindow from '../DraggableWindow';
 import { useDesktop, type PreviewTarget } from '../../contexts/DesktopContext';
+import { PROFILE } from '../../constants/profile';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -130,7 +131,7 @@ const FAVORITES: SidebarItem[] = [
 ];
 
 const LOCATIONS: SidebarItem[] = [
-    { id: 'home', label: 'Aahil', icon: House, color: 'text-gray-500', root: 'Home' },
+    { id: 'home', label: PROFILE.firstName, icon: House, color: 'text-gray-500', root: 'Home' },
 ];
 
 const TAGS = [
@@ -200,7 +201,7 @@ export default function FinderWindow() {
 
     const entries = getEntries();
 
-    const breadcrumbParts = ['Aahil'];
+    const breadcrumbParts = [PROFILE.firstName];
     if (root !== 'Home') breadcrumbParts.push(root);
     breadcrumbParts.push(...pathStack);
     const breadcrumb = breadcrumbParts.join(' › ');
@@ -274,7 +275,7 @@ export default function FinderWindow() {
         </div>
     );
 
-    const windowTitle = pathStack.length > 0 ? pathStack[pathStack.length - 1] : root === 'Home' ? 'Aahil' : root;
+    const windowTitle = pathStack.length > 0 ? pathStack[pathStack.length - 1] : root === 'Home' ? PROFILE.firstName : root;
 
     return (
         <DraggableWindow id="finder" resizable minWidth={580} minHeight={400}>

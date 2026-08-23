@@ -7,6 +7,7 @@ import {
     ExternalLink,
     Monitor,
 } from 'lucide-react';
+import { PROFILE, MAILTO } from './profile';
 
 export type MenuOption = {
     label: string;
@@ -35,9 +36,9 @@ export const navLinks: { label: string; href: string; menuOptions: MenuOption[] 
         menuOptions: [
             { label: 'Open Contacts', action: 'open:contacts', shortcut: '⇧C', icon: Users },
             { divider: true },
-            { label: 'Email', action: 'mailto:subikahaider@gmail.com', shortcut: '⇧M', icon: Mail },
-            { label: 'LinkedIn', action: 'https://linkedin.com/in/aahilrupsi', shortcut: '⇧L', icon: User },
-            { label: 'GitHub', action: 'https://github.com/aahilrupsi', shortcut: '⇧G', icon: GitBranch },
+            { label: 'Email', action: MAILTO, shortcut: '⇧M', icon: Mail },
+            { label: 'LinkedIn', action: PROFILE.linkedin.url, shortcut: '⇧L', icon: User },
+            { label: 'GitHub', action: PROFILE.github.url, shortcut: '⇧G', icon: GitBranch },
         ]
     },
     {
@@ -46,7 +47,7 @@ export const navLinks: { label: string; href: string; menuOptions: MenuOption[] 
         menuOptions: [
             { label: 'Open Projects', action: 'open:safari', shortcut: '⇧P', icon: Monitor },
             { divider: true },
-            { label: 'View on GitHub', action: 'https://github.com/aahilrupsi', shortcut: '⇧V', icon: ExternalLink },
+            { label: 'View on GitHub', action: PROFILE.github.url, shortcut: '⇧V', icon: ExternalLink },
         ]
     },
 ];
