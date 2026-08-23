@@ -31,4 +31,4 @@ Currently at **McKinney & Co**, building [what you do here].
 
 - [GitHub](https://github.com/aahilrupsi)
 - [LinkedIn](https://linkedin.com/in/YOUR_HANDLE)
-- aahil@mckinneyandco.com
+- reachout@
