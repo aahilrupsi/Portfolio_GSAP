@@ -4,7 +4,7 @@ export const PROFILE = {
     firstName: 'Aahil',
     title: 'Software Engineer',
     email: 'reachout@aahilrupsi.com',
-    website: 'https://aahilrupsi.dev',
+    website: 'https://aahilrupsi.com',
     github: {
         handle: 'aahilrupsi',
         url: 'https://github.com/aahilrupsi',
