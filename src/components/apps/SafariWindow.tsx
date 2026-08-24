@@ -29,15 +29,16 @@ interface Project {
     title: string;
     description: string;
     color: string;
+    href?: string;
+    status?: 'in-progress' | 'coming-soon';
 }
 
 const PROJECTS: Project[] = [
-    { id: 1, title: 'Portfolio OS',      description: 'macOS-inspired interactive developer portfolio',       color: '#1a237e' },
-    { id: 2, title: 'JelloText',         description: 'Variable font physics animation with GSAP',            color: '#b71c1c' },
-    { id: 3, title: '3D MacBook Intro',  description: 'Three.js + GSAP cinematic camera fly-through',        color: '#311b92' },
-    { id: 4, title: 'Contacts App',      description: 'macOS Contacts clone with live search & detail view',  color: '#004d40' },
-    { id: 5, title: 'System Settings',   description: 'Pixel-perfect macOS System Settings replica',          color: '#263238' },
-    { id: 6, title: 'Notes App',         description: 'Editable rich-text notes with macOS window chrome',    color: '#bf360c' },
+    { id: 1, title: 'Portfolio OS',           description: 'macOS-inspired interactive developer portfolio, GSAP + Three.js', color: '#1a237e', href: 'https://github.com/aahilrupsi/Portfolio_GSAP' },
+    { id: 2, title: 'MNIST: Rust → WASM',     description: 'Neural net from scratch, compiled to WebAssembly for in-browser inference', color: '#bf360c', href: 'https://mnist-wasm.aahilrupsi.com/' },
+    { id: 3, title: 'HTTP Server in C',       description: 'Raw TCP, HTTP/1.1 parser, kqueue event loop — no frameworks', color: '#311b92', href: 'https://github.com/aahilrupsi/http_server_c', status: 'in-progress' },
+    { id: 4, title: 'Heap Allocator',         description: 'malloc/free from scratch in C — best-fit search with block coalescing', color: '#004d40', href: 'https://github.com/aahilrupsi/cse29-pa5-malloc' },
+    { id: 5, title: 'C++20 Database',         description: 'Building a database from scratch in modern C++',    color: '#263238', status: 'coming-soon' },
 ];
 
 // ─── Tab state ───────────────────────────────────────────────────────────────
@@ -86,8 +87,12 @@ export default function SafariWindow() {
 
     // ── Page actions ─────────────────────────────────────────────────────────
     const openProject = useCallback((project: Project, index: number) => {
+        if (project.href) {
+            window.open(project.href, '_blank', 'noopener,noreferrer');
+        }
         setTabs(prev => prev.map(t => {
             if (t.id !== activeTabId) return t;
+            if (!project.href) return { ...t, selectedIndex: index };
             const already = t.recentlyClosed.find(rc => rc.id === project.id);
             const recentlyClosed = already ? t.recentlyClosed : [project, ...t.recentlyClosed].slice(0, 8);
             return { ...t, selectedIndex: index, recentlyClosed };
@@ -277,7 +282,9 @@ export default function SafariWindow() {
                             {PROJECTS.map((project, i) => (
                                 <div
                                     key={project.id}
-                                    className={`relative rounded-2xl overflow-hidden cursor-pointer select-none transition-all duration-150 h-44 ${
+                                    className={`relative rounded-2xl overflow-hidden select-none transition-all duration-150 h-44 ${
+                                        project.status === 'coming-soon' ? 'cursor-default border border-dashed border-white/20' : 'cursor-pointer'
+                                    } ${
                                         activeTab.selectedIndex === i
                                             ? 'ring-2 ring-[#3b9eff] ring-offset-2 ring-offset-[#1c1c1e] scale-[1.03]'
                                             : 'hover:scale-[1.02]'
@@ -285,6 +292,11 @@ export default function SafariWindow() {
                                     style={{ backgroundColor: project.color }}
                                     onClick={() => openProject(project, i)}
                                 >
+                                    {project.status && (
+                                        <span className="absolute top-2 right-2 text-[9px] font-semibold uppercase tracking-wide text-white/80 bg-black/40 px-2 py-0.5 rounded-full">
+                                            {project.status === 'in-progress' ? 'In Progress' : 'Coming Soon'}
+                                        </span>
+                                    )}
                                     <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/75 via-black/30 to-transparent">
                                         <p className="text-white font-semibold text-[13px] leading-snug">{project.title}</p>
                                         <p className="text-white/55 text-[11px] mt-0.5 truncate">{project.description}</p>
