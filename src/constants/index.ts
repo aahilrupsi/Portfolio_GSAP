@@ -27,7 +27,7 @@ export const navLinks: { label: string; href: string; menuOptions: MenuOption[] 
         label: 'Resume',
         href: '#resume',
         menuOptions: [
-            { label: 'View Resume', action: 'noop', shortcut: '⇧R', icon: FileText },
+            { label: 'View Resume', action: 'open:resume', shortcut: '⇧R', icon: FileText },
         ]
     },
     {

@@ -17,7 +17,7 @@ const Navbar = () => {
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
     const [isMenuMode, setIsMenuMode] = useState(false);
     const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-    const { openWindow, sleepScreen, restartSequence } = useDesktop();
+    const { openWindow, sleepScreen, restartSequence, openPreview } = useDesktop();
 
     // Update time every minute
     useEffect(() => {
@@ -123,7 +123,9 @@ const Navbar = () => {
 
     const handleNavAction = (action: string) => {
         if (action === 'noop') return;
-        if (action.startsWith('open:')) {
+        if (action === 'open:resume') {
+            openPreview({ name: 'resume.pdf', kind: 'pdf' });
+        } else if (action.startsWith('open:')) {
             openWindow(action.slice(5) as WindowType);
         } else if (action.startsWith('mailto:') || action.startsWith('http')) {
             window.open(action, '_blank', 'noopener,noreferrer');
