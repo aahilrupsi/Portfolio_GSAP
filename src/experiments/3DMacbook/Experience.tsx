@@ -1,7 +1,7 @@
 import { Canvas, useThree, useFrame, type RootState } from '@react-three/fiber'
-import { Environment, ContactShadows, Stars } from '@react-three/drei'
+import { Environment, ContactShadows, Stars, useProgress } from '@react-three/drei'
 import Macbook from './Macbook'
-import { useLayoutEffect, useEffect, useMemo, useContext, useCallback, useState } from 'react'
+import { Suspense, useLayoutEffect, useEffect, useMemo, useContext, useCallback, useState } from 'react'
 import gsap from 'gsap'
 import { Vector3 } from 'three'
 import { DesktopContext } from '../../contexts/DesktopContext'
@@ -142,6 +142,27 @@ function CameraController() {
     return null
 }
 
+// Tracks the GLTF/HDR asset fetches happening inside the Canvas's Suspense
+// boundary and shows a progress bar until they're done. Reads from drei's
+// shared loading-manager store, so it works as a plain overlay outside the Canvas.
+function LoadingOverlay() {
+    const { progress, active } = useProgress()
+
+    return (
+        <div
+            className={`absolute inset-0 z-10 flex flex-col items-center justify-center bg-black pointer-events-none transition-opacity duration-700 ease-in-out ${active ? 'opacity-100' : 'opacity-0'
+                }`}
+        >
+            <div className="w-64 h-1.5 bg-[#333333] rounded-full overflow-hidden">
+                <div
+                    className="h-full bg-white rounded-full transition-all duration-150 ease-out"
+                    style={{ width: `${progress}%` }}
+                />
+            </div>
+        </div>
+    )
+}
+
 export default function Experience() {
     const desktopContext = useContext(DesktopContext);
 
@@ -162,7 +183,9 @@ export default function Experience() {
     }, [])
 
     return (
-        <div className="h-screen w-full bg-black">
+        <div className="h-screen w-full bg-black relative">
+            <LoadingOverlay />
+
             <Canvas
                 key={canvasKey}
                 onCreated={handleCanvasCreated}
@@ -174,17 +197,23 @@ export default function Experience() {
             >
                 <color attach="background" args={['#050505']} />
                 <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-                <Environment preset="city" />
 
-                <group position-y={-1}>
-                    <Macbook desktopContext={desktopContext} />
-                    <ContactShadows opacity={0.6} scale={15} blur={2.5} far={4} color="#000000" />
-                </group>
+                {/* Suspense boundary scoped to just the loading assets (HDR env + GLTF
+                model) so the canvas itself mounts immediately instead of the whole
+                Experience getting swapped out for App.tsx's blank fallback div. */}
+                <Suspense fallback={null}>
+                    <Environment preset="city" />
+
+                    <group position-y={-1}>
+                        <Macbook desktopContext={desktopContext} />
+                        <ContactShadows opacity={0.6} scale={15} blur={2.5} far={4} color="#000000" />
+                    </group>
+                </Suspense>
 
                 <CameraController />
 
-                {/* Optional: OrbitControls for debugging if we want to override, 
-            but usually conflicts with GSAP if enabled during animation. 
+                {/* Optional: OrbitControls for debugging if we want to override,
+            but usually conflicts with GSAP if enabled during animation.
             Commented out for the cinematic sequence. */}
                 {/* <OrbitControls /> */}
             </Canvas>
