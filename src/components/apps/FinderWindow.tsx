@@ -201,7 +201,7 @@ export default function FinderWindow() {
 
     const entries = getEntries();
 
-    const breadcrumbParts = [PROFILE.firstName];
+    const breadcrumbParts: string[] = [PROFILE.firstName];
     if (root !== 'Home') breadcrumbParts.push(root);
     breadcrumbParts.push(...pathStack);
     const breadcrumb = breadcrumbParts.join(' › ');

@@ -1,7 +1,7 @@
-import { Canvas, useThree, useFrame } from '@react-three/fiber'
+import { Canvas, useThree, useFrame, type RootState } from '@react-three/fiber'
 import { Environment, ContactShadows, Stars } from '@react-three/drei'
 import Macbook from './Macbook'
-import { useLayoutEffect, useEffect, useMemo, useContext } from 'react'
+import { useLayoutEffect, useEffect, useMemo, useContext, useCallback, useState } from 'react'
 import gsap from 'gsap'
 import { Vector3 } from 'three'
 import { DesktopContext } from '../../contexts/DesktopContext'
@@ -145,9 +145,27 @@ function CameraController() {
 export default function Experience() {
     const desktopContext = useContext(DesktopContext);
 
+    // The scene (GLTF model, HDR environment, and the entire desktop UI portaled
+    // onto the screen) is heavy enough that the GPU occasionally drops the WebGL
+    // context (logged as "THREE.WebGLRenderer: Context Lost"). Without explicit
+    // recovery, a lost context never comes back and the canvas stays blank forever.
+    // Remounting the Canvas via `key` forces a clean WebGLRenderer + re-upload of
+    // all GPU resources instead of relying on the browser's native (unreliable)
+    // context-restore behavior.
+    const [canvasKey, setCanvasKey] = useState(0)
+
+    const handleCanvasCreated = useCallback(({ gl }: RootState) => {
+        gl.domElement.addEventListener('webglcontextlost', (event) => {
+            event.preventDefault()
+            setCanvasKey((key) => key + 1)
+        })
+    }, [])
+
     return (
         <div className="h-screen w-full bg-black">
             <Canvas
+                key={canvasKey}
+                onCreated={handleCanvasCreated}
                 // We set initial camera here to match CONFIG.cameraStart to prevent flash/jump
                 camera={{
                     position: [CONFIG.cameraStart.x, CONFIG.cameraStart.y, CONFIG.cameraStart.z],

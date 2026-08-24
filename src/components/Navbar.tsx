@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { navLinks } from '#constants';
+import { navLinks, type MenuOption } from '#constants';
 import { PROFILE } from '#constants/profile';
 import { useDesktop } from '../contexts/DesktopContext';
 import { type WindowType } from '../types/desktop';
 import { Apple, Laptop, Settings, Moon, RotateCcw, Power } from 'lucide-react';
 import gsap from 'gsap';
+
+const isActionable = (opt: MenuOption): opt is Extract<MenuOption, { action: string }> =>
+    typeof opt.action === 'string';
 
 /**
  * Navbar component that mimics the macOS Status Bar with refined "Glass" dropdowns and hotkeys.
@@ -51,8 +54,8 @@ const Navbar = () => {
                 const key = e.key.toUpperCase();
                 for (const link of navLinks) {
                     if (link.menuOptions) {
-                        const option = link.menuOptions.find(opt => 'shortcut' in opt && opt.shortcut === `⇧${key}`);
-                        if (option && 'action' in option) {
+                        const option = link.menuOptions.find(opt => isActionable(opt) && opt.shortcut === `⇧${key}`);
+                        if (option && isActionable(option)) {
                             e.preventDefault();
                             handleNavAction(option.action);
                             closeMenu();
@@ -219,7 +222,7 @@ const Navbar = () => {
                                 >
                                     {link.menuOptions.map((opt, idx) => (
                                         <div key={idx} className="group px-0 w-full">
-                                            {'divider' in opt && opt.divider ? (
+                                            {!isActionable(opt) ? (
                                                 <div className="menu-divider" />
                                             ) : (
                                                 <button className="menu-item" onClick={(e) => {
