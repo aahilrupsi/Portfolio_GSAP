@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import {
     ExternalLink, Copy, UserPlus, MessageSquare, ThumbsUp,
-    Star, GitFork, Code, Mail, Calendar, Heart, Repeat2, Bookmark, Check
+    Star, GitFork, Code, Mail, Calendar, Check
+    // Heart, Repeat2, Bookmark, // only used by the X/Twitter contact entry, disabled below
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import MacWindow from '../MacWindow';
@@ -30,11 +31,12 @@ const EmailLogo = () => (
     </svg>
 );
 
-const XLogo = () => (
-    <svg viewBox="0 0 24 24" fill="white" className="w-11 h-11">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
-);
+// X/Twitter account disabled — no longer public.
+// const XLogo = () => (
+//     <svg viewBox="0 0 24 24" fill="white" className="w-11 h-11">
+//         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+//     </svg>
+// );
 
 // --- Types ---
 
@@ -124,25 +126,26 @@ const CONTACTS: Contact[] = [
             { label: 'network', value: 'Professional Network' },
         ],
     },
-    {
-        id: 'twitter',
-        name: 'X / Twitter',
-        initials: 'X',
-        subtitle: `@${PROFILE.x.handle}`,
-        gradient: 'linear-gradient(150deg, #1a1a1a 0%, #111 55%, #050505 100%)',
-        avatarBg: '#111',
-        Logo: XLogo,
-        actions: [
-            { Icon: Heart,       label: 'Like',     onClick: () => window.open(PROFILE.x.url, '_blank') },
-            { Icon: Repeat2,     label: 'Repost',   onClick: () => window.open(PROFILE.x.url, '_blank') },
-            { Icon: Bookmark,    label: 'Bookmark', onClick: () => window.open(PROFILE.x.url, '_blank') },
-            { Icon: ExternalLink,label: 'Open',     onClick: () => window.open(PROFILE.x.url, '_blank') },
-        ],
-        fields: [
-            { label: 'profile url', value: `x.com/${PROFILE.x.handle}`, link: PROFILE.x.url, copyValue: PROFILE.x.url },
-            { label: 'network', value: 'Social Media' },
-        ],
-    },
+    // X/Twitter account disabled — no longer public.
+    // {
+    //     id: 'twitter',
+    //     name: 'X / Twitter',
+    //     initials: 'X',
+    //     subtitle: `@${PROFILE.x.handle}`,
+    //     gradient: 'linear-gradient(150deg, #1a1a1a 0%, #111 55%, #050505 100%)',
+    //     avatarBg: '#111',
+    //     Logo: XLogo,
+    //     actions: [
+    //         { Icon: Heart,       label: 'Like',     onClick: () => window.open(PROFILE.x.url, '_blank') },
+    //         { Icon: Repeat2,     label: 'Repost',   onClick: () => window.open(PROFILE.x.url, '_blank') },
+    //         { Icon: Bookmark,    label: 'Bookmark', onClick: () => window.open(PROFILE.x.url, '_blank') },
+    //         { Icon: ExternalLink,label: 'Open',     onClick: () => window.open(PROFILE.x.url, '_blank') },
+    //     ],
+    //     fields: [
+    //         { label: 'profile url', value: `x.com/${PROFILE.x.handle}`, link: PROFILE.x.url, copyValue: PROFILE.x.url },
+    //         { label: 'network', value: 'Social Media' },
+    //     ],
+    // },
 ];
 
 // --- Component ---

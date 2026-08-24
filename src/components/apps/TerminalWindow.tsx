@@ -23,8 +23,9 @@ const LOCAL_ANSWERS: Record<string, string> = {
     contact:
         `email:    ${PROFILE.email}\n` +
         `github:   github.com/${PROFILE.github.handle}\n` +
-        `linkedin: linkedin.com/in/${PROFILE.linkedin.handle}\n` +
-        `x:        x.com/${PROFILE.x.handle}\n\n` +
+        `linkedin: linkedin.com/in/${PROFILE.linkedin.handle}\n\n` +
+        // X/Twitter account disabled — no longer public.
+        // `x:        x.com/${PROFILE.x.handle}\n\n` +
         '(or just open the Contacts app in the dock)',
     resume: 'resume.pdf is in Finder → Documents. Or ask me anything and I\'ll answer directly.',
     projects: 'check the Safari app\'s start page for a project overview — or ask me about a specific one.',

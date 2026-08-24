@@ -13,10 +13,11 @@ export const PROFILE = {
         handle: 'aahilrupsi',
         url: 'https://linkedin.com/in/aahilrupsi',
     },
-    x: {
-        handle: 'aahilrupsi',
-        url: 'https://x.com/aahilrupsi',
-    },
+    // X/Twitter account disabled — no longer public.
+    // x: {
+    //     handle: 'aahilrupsi',
+    //     url: 'https://x.com/aahilrupsi',
+    // },
 } as const;
 
 export const MAILTO = `mailto:${PROFILE.email}`;
