@@ -17,11 +17,11 @@ const SEARCH_QUIPS = [
 
 const FAVORITES = [
     { name: 'ThePrimeagen', initial: 'P',  color: '#c62828', href: 'https://www.youtube.com/@ThePrimeTimeagen' },
-    { name: 'Low Level',    initial: 'LL', color: '#1565c0', href: 'https://www.youtube.com/@LowLevelLearning'  },
+    { name: 'Low Level',    initial: 'LL', color: '#1565c0', href: 'https://www.youtube.com/@LowLevelTV'  },
     { name: 'Fireship',     initial: 'F',  color: '#0d47a1', href: 'https://www.youtube.com/@Fireship'          },
     { name: 'Theo',         initial: 'T',  color: '#4a148c', href: 'https://www.youtube.com/@t3dotgg'           },
-    { name: 'Daniel Hirsch',initial: 'DH', color: '#2e7d32', href: 'https://www.youtube.com/@daniel_ctrl'       },
-    { name: 'Traversy',     initial: 'TM', color: '#e65100', href: 'https://www.youtube.com/@TraversyMedia'     },
+    { name: 'Daniel Hirsch',initial: 'DH', color: '#2e7d32', href: 'https://www.youtube.com/@HirschDaniel'       },
+    { name: 'Neet Code',     initial: 'NC', color: '#e65100', href: 'https://www.youtube.com/@NeetCode'     },
 ];
 
 interface Project {

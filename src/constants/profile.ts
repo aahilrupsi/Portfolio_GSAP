@@ -10,8 +10,8 @@ export const PROFILE = {
         url: 'https://github.com/aahilrupsi',
     },
     linkedin: {
-        handle: 'aahilrupsi',
-        url: 'https://linkedin.com/in/aahilrupsi',
+        handle: 'aahil-rupsi',
+        url: 'https://www.linkedin.com/in/aahil-rupsi/',
     },
     // X/Twitter account disabled — no longer public.
     // x: {
