@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, lazy, Suspense } from 'react'
 import { gsap } from 'gsap'
 import { useDesktop } from '../../contexts/DesktopContext'
+import { useNotifications } from '../../contexts/NotificationContext'
 
 // Lazy so the heavy Desktop app (Navbar, Dock, WindowManager, and every app
 // window) is fetched as its own chunk instead of blocking the Experience
@@ -22,6 +23,7 @@ const AppleLogo = () => (
 
 export default function TestScreen({ width, height }: TestScreenProps) {
     const { openWindow, closeWindow, wallpaper } = useDesktop()
+    const { notify } = useNotifications()
     const [bootState, setBootState] = useState<'turning_on' | 'booting' | 'loaded'>('turning_on')
     const [progress, setProgress] = useState(0)
     const [showWelcomeButtons, setShowWelcomeButtons] = useState(true)
@@ -63,6 +65,15 @@ export default function TestScreen({ width, height }: TestScreenProps) {
                 // Position at bottom left: x = 40, y = height - window_height - 40
                 // Notes window height is 500
                 openWindow('notes', 40, height - 500 - 40);
+
+                notify({
+                    id: 'macbook-welcome',
+                    trigger: 'one-time',
+                    appName: 'Portfolio',
+                    title: 'Welcome aboard',
+                    message: "This is a notification — drag me around, or click the X to dismiss.",
+                    icon: '/icons/apple-logo.svg',
+                });
             }, 2000);
 
             return () => clearTimeout(finishTimer);

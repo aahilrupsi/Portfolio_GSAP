@@ -3,11 +3,14 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
 import { DesktopProvider } from './contexts/DesktopContext'
+import { NotificationProvider } from './contexts/NotificationContext'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <DesktopProvider>
-      <App />
+      <NotificationProvider>
+        <App />
+      </NotificationProvider>
     </DesktopProvider>
   </StrictMode>,
 )

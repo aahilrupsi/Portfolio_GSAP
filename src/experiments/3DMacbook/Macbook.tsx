@@ -4,6 +4,7 @@ import { Group, Mesh, MeshStandardMaterial, Vector3 } from 'three'
 import { createPortal } from '@react-three/fiber'
 import TestScreen from './TestScreen'
 import { DesktopContext } from '../../contexts/DesktopContext'
+import { NotificationContext } from '../../contexts/NotificationContext'
 
 interface MacbookProps {
     [key: string]: any
@@ -122,7 +123,9 @@ const Macbook = forwardRef<Group, MacbookProps>((props, ref) => {
                     }}
                 >
                     <DesktopContext.Provider value={props.desktopContext}>
-                        <TestScreen width={screenInfo.htmlWidth} height={screenInfo.htmlHeight} />
+                        <NotificationContext.Provider value={props.notificationContext}>
+                            <TestScreen width={screenInfo.htmlWidth} height={screenInfo.htmlHeight} />
+                        </NotificationContext.Provider>
                     </DesktopContext.Provider>
                 </Html>,
                 nodes.Screen_Plane

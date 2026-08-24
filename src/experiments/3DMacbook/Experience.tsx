@@ -5,6 +5,7 @@ import { Suspense, useLayoutEffect, useEffect, useMemo, useContext, useCallback,
 import gsap from 'gsap'
 import { Vector3 } from 'three'
 import { DesktopContext } from '../../contexts/DesktopContext'
+import { NotificationContext } from '../../contexts/NotificationContext'
 
 // --- CONFIGURATION ---
 // Change these values to tweak the animation
@@ -165,6 +166,7 @@ function LoadingOverlay() {
 
 export default function Experience() {
     const desktopContext = useContext(DesktopContext);
+    const notificationContext = useContext(NotificationContext);
 
     // The scene (GLTF model, HDR environment, and the entire desktop UI portaled
     // onto the screen) is heavy enough that the GPU occasionally drops the WebGL
@@ -213,7 +215,7 @@ export default function Experience() {
                     <Environment preset="city" />
 
                     <group position-y={-1}>
-                        <Macbook desktopContext={desktopContext} />
+                        <Macbook desktopContext={desktopContext} notificationContext={notificationContext} />
                         <ContactShadows opacity={0.6} scale={15} blur={2.5} far={4} color="#000000" />
                     </group>
                 </Suspense>
