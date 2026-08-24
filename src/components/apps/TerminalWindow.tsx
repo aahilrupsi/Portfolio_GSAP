@@ -20,6 +20,7 @@ export default function TerminalWindow() {
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
     const nextId = useRef(0);
+    const hasBootedRef = useRef(false);
 
     const [lines, setLines] = useState<Line[]>([]);
 
@@ -36,7 +37,11 @@ export default function TerminalWindow() {
                 { scale: 1, opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }
             );
         }
-        if (windowsState.terminal.isOpen && lines.length === 0) {
+        // Guarded with a ref (not just lines.length) because StrictMode double-invokes
+        // this effect on mount, and the second pass would otherwise still see the
+        // pre-update `lines` value and fire the boot text/notification twice.
+        if (windowsState.terminal.isOpen && !hasBootedRef.current) {
+            hasBootedRef.current = true;
             const today = new Date().toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
             pushLine(`Last login: ${today} on ttys000`);
             notify({
