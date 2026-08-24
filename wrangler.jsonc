@@ -1,0 +1,19 @@
+{
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "portfolio-gsap",
+    "main": "./worker/index.ts",
+    "compatibility_date": "2026-08-24",
+    "assets": {
+        "directory": "./dist",
+        "binding": "ASSETS",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": ["/api/*"]
+    },
+    "d1_databases": [
+        {
+            "binding": "DB",
+            "database_name": "portfolio-contact",
+            "database_id": "e36969e3-7ba6-4256-9593-258aad5d8681"
+        }
+    ]
+}

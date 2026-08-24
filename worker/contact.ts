@@ -1,8 +1,4 @@
-interface Env {
-    DB: D1Database;
-    /** Full ntfy.sh topic URL to POST notifications to, e.g. https://ntfy.sh/your-private-topic */
-    NTFY_TOPIC_URL?: string;
-}
+import type { Env } from './index';
 
 interface ContactPayload {
     fromEmail?: string;
@@ -24,7 +20,7 @@ function json(data: unknown, status = 200): Response {
     });
 }
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export async function handleContact(request: Request, env: Env): Promise<Response> {
     let payload: ContactPayload;
     try {
         payload = await request.json();
@@ -72,4 +68,4 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     }
 
     return json({ ok: true });
-};
+}

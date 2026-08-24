@@ -1,8 +1,0 @@
-name = "portfolio-gsap"
-pages_build_output_dir = "dist"
-compatibility_date = "2026-08-24"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "portfolio-contact"
-database_id = "e36969e3-7ba6-4256-9593-258aad5d8681"
