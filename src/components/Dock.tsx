@@ -1,7 +1,6 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Tooltip } from 'react-tooltip';
 import { useDesktop } from '../contexts/DesktopContext';
-import gsap from 'gsap';
 
 import finderIcon from '../assets/dock/finder.png';
 import notesIcon from '../assets/dock/notes.png';
@@ -22,41 +21,76 @@ interface DockIconProps {
 }
 
 function DockIcon({ label, isOpen, onClick, tooltipId, src, children }: DockIconProps) {
-    const iconRef = useRef<HTMLDivElement>(null);
-
-    const handleMouseEnter = () => {
-        gsap.to(iconRef.current, { scale: 1.25, y: -8, duration: 0.18, ease: 'back.out(2)' });
-    };
-
-    const handleMouseLeave = () => {
-        gsap.to(iconRef.current, { scale: 1, y: 0, duration: 0.15, ease: 'power2.out' });
-    };
-
     return (
         <div
-            ref={iconRef}
             className="dock-icon flex flex-col items-center"
             onClick={onClick}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
             data-tooltip-id={tooltipId}
             data-tooltip-content={label}
         >
-            {src
-                ? <img src={src} alt={label} draggable={false} />
-                : children
-            }
+            <div className="dock-icon-inner">
+                {src
+                    ? <img src={src} alt={label} draggable={false} />
+                    : children
+                }
+            </div>
             <div className={`dock-dot transition-opacity duration-200 ${isOpen ? 'opacity-100' : 'opacity-0'}`} />
         </div>
     );
 }
 
+// Distance (px) over which the magnification falls off, and how much the
+// closest icon grows by. Mirrors the real macOS Dock's magnification curve.
+const MAGNIFY_SIGMA = 90;
+const MAGNIFY_AMPLITUDE = 0.4;
+
 export default function Dock() {
     const { windowsState, openWindow, playSound } = useDesktop();
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        const icons = Array.from(container.querySelectorAll<HTMLElement>('.dock-icon-inner'));
+        let centers: number[] = [];
+
+        const captureCenters = () => {
+            centers = icons.map((icon) => {
+                const rect = icon.getBoundingClientRect();
+                return rect.left + rect.width / 2;
+            });
+        };
+
+        const handlePointerMove = (e: PointerEvent) => {
+            if (!centers.length) captureCenters();
+            icons.forEach((icon, i) => {
+                const distance = e.clientX - centers[i];
+                const magnify = 1 + MAGNIFY_AMPLITUDE * Math.exp(-(distance * distance) / (2 * MAGNIFY_SIGMA * MAGNIFY_SIGMA));
+                icon.style.setProperty('--m', magnify.toFixed(3));
+            });
+        };
+
+        const handlePointerLeave = () => {
+            icons.forEach((icon) => icon.style.setProperty('--m', '1'));
+            centers = [];
+        };
+
+        container.addEventListener('pointerenter', captureCenters);
+        container.addEventListener('pointermove', handlePointerMove);
+        container.addEventListener('pointerleave', handlePointerLeave);
+
+        return () => {
+            container.removeEventListener('pointerenter', captureCenters);
+            container.removeEventListener('pointermove', handlePointerMove);
+            container.removeEventListener('pointerleave', handlePointerLeave);
+        };
+    }, []);
 
     return (
         <div id="dock">
-            <div className="dock-container">
+            <div className="dock-container" ref={containerRef}>
                 {/* Finder */}
                 <DockIcon label="Finder" isOpen={windowsState.finder.isOpen} onClick={() => { playSound('open'); openWindow('finder'); }} src={finderIcon} tooltipId="dock-tt" />
 

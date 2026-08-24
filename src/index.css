@@ -163,10 +163,25 @@ body {
     }
 
     .dock-icon {
-      @apply size-14 3xl:size-20 cursor-pointer;
+      @apply flex-none cursor-pointer;
+    }
+
+    .dock-icon-inner {
+      --m: 1;
+      --dock-icon-size: 3.5rem;
+      width: calc(var(--dock-icon-size) * var(--m));
+      height: calc(var(--dock-icon-size) * var(--m));
+      transition: width 0.13s ease-out, height 0.13s ease-out;
 
       img {
-        @apply object-cover object-center rounded-md;
+        @apply w-full h-full object-cover object-center rounded-md;
+      }
+    }
+
+    /* matches --breakpoint-3xl */
+    @media (min-width: 1920px) {
+      .dock-icon-inner {
+        --dock-icon-size: 5rem;
       }
     }
   }
