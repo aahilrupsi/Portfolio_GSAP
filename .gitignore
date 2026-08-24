@@ -28,3 +28,7 @@ dist-ssr
 
 .claude-sandbox/*
 .claude/*
+
+# Cloudflare
+.wrangler
+.dev.vars

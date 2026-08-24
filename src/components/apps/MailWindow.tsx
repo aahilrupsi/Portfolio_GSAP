@@ -71,10 +71,16 @@ const MAILBOXES: MailboxItem[] = [
     { id: 'trash',  label: 'Trash',  Icon: Trash2 },
 ];
 
-// ─── Send stub ────────────────────────────────────────────────────────────────
-// TODO: replace with a fetch() to the rate-limited backend worker once it exists.
-function sendMail(_payload: { fromEmail: string; subject: string; body: string }): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, 700));
+// ─── Send ───────────────────────────────────────────────────────────────────
+async function sendMail(payload: { fromEmail: string; subject: string; body: string }): Promise<void> {
+    const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        throw new Error('Failed to send message');
+    }
 }
 
 type SendState = 'idle' | 'sending' | 'sent' | 'error';
@@ -284,6 +290,7 @@ export default function MailWindow() {
                                             value={fromEmail}
                                             onChange={e => setFromEmail(e.target.value)}
                                             placeholder="your@email.com"
+                                            maxLength={254}
                                             className="flex-1 bg-transparent outline-none text-white placeholder:text-white/25"
                                         />
                                     </div>
@@ -294,6 +301,7 @@ export default function MailWindow() {
                                             value={subject}
                                             onChange={e => setSubject(e.target.value)}
                                             placeholder="Subject"
+                                            maxLength={200}
                                             className="flex-1 bg-transparent outline-none text-white placeholder:text-white/25"
                                         />
                                     </div>
@@ -302,6 +310,7 @@ export default function MailWindow() {
                                     value={body}
                                     onChange={e => setBody(e.target.value)}
                                     placeholder="Write your message..."
+                                    maxLength={5000}
                                     className="flex-1 min-h-0 bg-transparent outline-none text-white text-[13px] leading-relaxed p-5 resize-none placeholder:text-white/25"
                                 />
                                 <div className="px-5 py-3 border-t border-black/30 flex items-center gap-3 flex-none">
