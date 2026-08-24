@@ -175,6 +175,14 @@ export default function Experience() {
     // context-restore behavior.
     const [canvasKey, setCanvasKey] = useState(0)
 
+    // Desktop.tsx (Navbar/Dock/WindowManager + every app window) is lazy-loaded
+    // by TestScreen only once the camera reaches the screen ~8s in. Kick off the
+    // fetch here instead, in parallel with the GLTF/HDR load, so the chunk is
+    // already warm by the time TestScreen's Suspense boundary needs it.
+    useEffect(() => {
+        import('#components/Desktop')
+    }, [])
+
     const handleCanvasCreated = useCallback(({ gl }: RootState) => {
         gl.domElement.addEventListener('webglcontextlost', (event) => {
             event.preventDefault()

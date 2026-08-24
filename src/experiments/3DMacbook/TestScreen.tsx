@@ -1,7 +1,12 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, lazy, Suspense } from 'react'
 import { gsap } from 'gsap'
-import Desktop from '#components/Desktop'
 import { useDesktop } from '../../contexts/DesktopContext'
+
+// Lazy so the heavy Desktop app (Navbar, Dock, WindowManager, and every app
+// window) is fetched as its own chunk instead of blocking the Experience
+// chunk's module graph. Experience.tsx kicks off this same import() early
+// (on mount) so it's already warm by the time this boundary renders.
+const Desktop = lazy(() => import('#components/Desktop'))
 
 interface TestScreenProps {
     width: number
@@ -88,44 +93,47 @@ export default function TestScreen({ width, height }: TestScreenProps) {
                 </div>
             </div>
 
-            {/* Payload Layer (The Actual Website) */}
-            <Desktop
-                className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out z-10 ${bootState === 'loaded' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-                    }`}
-                style={{ backgroundImage: `url(${wallpaper === 'default' ? '/images/wallpaper.jpg' : wallpaper})` }}
-            >
-                {showWelcomeButtons ? (
-                    <div className="w-full h-full relative flex flex-col items-center justify-end pointer-events-none">
-                        {/* Control Options Container - Perfectly Centered */}
-                        <div ref={welcomeRef} className="pb-32 z-30 w-full flex justify-center pointer-events-auto">
-                            <div className="flex items-center bg-white/[0.03] border border-white/[0.05] backdrop-blur-md rounded-full font-bold tracking-[0.2em] text-[13px] text-white/50 shadow-2xl">
-                                <div className="flex-1 min-w-[220px] py-5 px-10 text-right">
-                                    <button
-                                        onClick={handleLaunch}
-                                        className="hover:text-white transition-colors cursor-pointer whitespace-nowrap"
-                                    >
-                                        GO FULL SCREEN
-                                    </button>
-                                </div>
+            {/* Payload Layer (The Actual Website). Suspense fallback is null since the
+            boot sequence layer above already covers this area while the chunk loads. */}
+            <Suspense fallback={null}>
+                <Desktop
+                    className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out z-10 ${bootState === 'loaded' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                        }`}
+                    style={{ backgroundImage: `url(${wallpaper === 'default' ? '/images/wallpaper.jpg' : wallpaper})` }}
+                >
+                    {showWelcomeButtons ? (
+                        <div className="w-full h-full relative flex flex-col items-center justify-end pointer-events-none">
+                            {/* Control Options Container - Perfectly Centered */}
+                            <div ref={welcomeRef} className="pb-32 z-30 w-full flex justify-center pointer-events-auto">
+                                <div className="flex items-center bg-white/[0.03] border border-white/[0.05] backdrop-blur-md rounded-full font-bold tracking-[0.2em] text-[13px] text-white/50 shadow-2xl">
+                                    <div className="flex-1 min-w-[220px] py-5 px-10 text-right">
+                                        <button
+                                            onClick={handleLaunch}
+                                            className="hover:text-white transition-colors cursor-pointer whitespace-nowrap"
+                                        >
+                                            GO FULL SCREEN
+                                        </button>
+                                    </div>
 
-                                {/* Vertical Separator - This stays at the exact screen center */}
-                                <div className="w-[1px] h-4 bg-white/10 flex-none" />
+                                    {/* Vertical Separator - This stays at the exact screen center */}
+                                    <div className="w-[1px] h-4 bg-white/10 flex-none" />
 
-                                <div className="flex-1 min-w-[220px] py-5 px-10 text-left">
-                                    <button
-                                        onClick={handleSkip}
-                                        className="hover:text-white transition-colors cursor-pointer whitespace-nowrap"
-                                    >
-                                        SKIP FULL SCREEN
-                                    </button>
+                                    <div className="flex-1 min-w-[220px] py-5 px-10 text-left">
+                                        <button
+                                            onClick={handleSkip}
+                                            className="hover:text-white transition-colors cursor-pointer whitespace-nowrap"
+                                        >
+                                            SKIP FULL SCREEN
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                ) : (
-                    <div className="w-full h-full flex items-center justify-center pointer-events-none" />
-                )}
-            </Desktop>
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center pointer-events-none" />
+                    )}
+                </Desktop>
+            </Suspense>
         </div>
     )
 }
