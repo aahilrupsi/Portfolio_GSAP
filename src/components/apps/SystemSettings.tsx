@@ -9,12 +9,14 @@ type Panel = 'wallpaper' | 'sound' | 'system-info';
 // ─── Wallpaper Panel ────────────────────────────────────────────────────────
 
 function WallpaperPanel() {
-    const { wallpaper, setWallpaper } = useDesktop();
+    const { wallpaper, setWallpaper, customWallpaper, setCustomWallpaper } = useDesktop();
     const fileRef = useRef<HTMLInputElement>(null);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState('');
 
+    const isTahoe = wallpaper === 'tahoe';
     const isDefault = wallpaper === 'default';
+    const isCustom = wallpaper === 'custom';
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -23,7 +25,7 @@ function WallpaperPanel() {
         setError('');
         try {
             const compressed = await compressImage(file);
-            setWallpaper(compressed);
+            setCustomWallpaper(compressed);
         } catch {
             setError('Could not process image. Try a smaller file.');
         } finally {
@@ -38,21 +40,50 @@ function WallpaperPanel() {
                 Choose a wallpaper for the desktop. Custom wallpapers are saved in your browser.
             </p>
 
-            <div className="grid grid-cols-2 gap-3 mb-6">
-                {/* Default option */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
+                {/* Tahoe option (default) */}
+                <button
+                    onClick={() => setWallpaper('tahoe')}
+                    className={`relative rounded-lg overflow-hidden aspect-video border-2 transition-all ${
+                        isTahoe ? 'border-[#0062d6]' : 'border-white/10 hover:border-white/30'
+                    }`}
+                >
+                    <img
+                        src="/images/wallpaper-tahoe.jpg"
+                        alt="Tahoe wallpaper"
+                        className="w-full h-full object-cover"
+                    />
+                    <span className="absolute bottom-1.5 left-0 right-0 text-center text-[10px] text-white font-medium drop-shadow">
+                        Tahoe
+                    </span>
+                    {isTahoe && (
+                        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-[#0062d6] flex items-center justify-center">
+                            <Check size={11} className="text-white" strokeWidth={3} />
+                        </div>
+                    )}
+                </button>
+
+                {/* Classic option — the image itself only loads once selected, so
+                    visitors who never pick it never pay for the 1.9MB download. */}
                 <button
                     onClick={() => setWallpaper('default')}
                     className={`relative rounded-lg overflow-hidden aspect-video border-2 transition-all ${
                         isDefault ? 'border-[#0062d6]' : 'border-white/10 hover:border-white/30'
                     }`}
                 >
-                    <img
-                        src="/images/wallpaper.jpg"
-                        alt="Default wallpaper"
-                        className="w-full h-full object-cover"
-                    />
+                    {isDefault ? (
+                        <img
+                            src="/images/wallpaper.jpg"
+                            alt="Classic wallpaper"
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-white/5">
+                            <Monitor size={20} className="text-white/25" />
+                        </div>
+                    )}
                     <span className="absolute bottom-1.5 left-0 right-0 text-center text-[10px] text-white font-medium drop-shadow">
-                        Default
+                        Classic
                     </span>
                     {isDefault && (
                         <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-[#0062d6] flex items-center justify-center">
@@ -61,26 +92,29 @@ function WallpaperPanel() {
                     )}
                 </button>
 
-                {/* Custom option / upload prompt */}
+                {/* Custom option — keeps showing the last uploaded photo (even while
+                    inactive) so switching to Tahoe/Classic and back doesn't lose it. */}
                 <button
-                    onClick={() => fileRef.current?.click()}
+                    onClick={() => customWallpaper ? setWallpaper('custom') : fileRef.current?.click()}
                     className={`relative rounded-lg overflow-hidden aspect-video border-2 transition-all ${
-                        !isDefault ? 'border-[#0062d6]' : 'border-white/10 border-dashed hover:border-white/30'
+                        isCustom ? 'border-[#0062d6]' : 'border-white/10 border-dashed hover:border-white/30'
                     }`}
                 >
-                    {!isDefault ? (
+                    {customWallpaper ? (
                         <>
                             <img
-                                src={wallpaperUrl(wallpaper)}
+                                src={wallpaperUrl('custom', customWallpaper)}
                                 alt="Custom wallpaper"
                                 className="w-full h-full object-cover"
                             />
                             <span className="absolute bottom-1.5 left-0 right-0 text-center text-[10px] text-white font-medium drop-shadow">
                                 Custom
                             </span>
-                            <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-[#0062d6] flex items-center justify-center">
-                                <Check size={11} className="text-white" strokeWidth={3} />
-                            </div>
+                            {isCustom && (
+                                <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-[#0062d6] flex items-center justify-center">
+                                    <Check size={11} className="text-white" strokeWidth={3} />
+                                </div>
+                            )}
                         </>
                     ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center gap-1 bg-white/5">
@@ -97,12 +131,12 @@ function WallpaperPanel() {
                     disabled={uploading}
                     className="text-[12px] px-4 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-colors disabled:opacity-40"
                 >
-                    {uploading ? 'Processing…' : 'Choose Photo…'}
+                    {uploading ? 'Processing…' : customWallpaper ? 'Choose Different Photo…' : 'Choose Photo…'}
                 </button>
 
-                {!isDefault && (
+                {!isTahoe && (
                     <button
-                        onClick={() => setWallpaper('default')}
+                        onClick={() => setWallpaper('tahoe')}
                         className="text-[12px] px-4 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-white/50 hover:text-white/70 transition-colors"
                     >
                         Reset to Default

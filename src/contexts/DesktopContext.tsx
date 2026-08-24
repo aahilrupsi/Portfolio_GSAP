@@ -43,8 +43,14 @@ export async function compressImage(file: File): Promise<string> {
     });
 }
 
-export function wallpaperUrl(wallpaper: string): string {
-    return wallpaper === 'default' ? '/images/wallpaper.jpg' : wallpaper;
+const BUILTIN_WALLPAPERS: Record<string, string> = {
+    default: '/images/wallpaper.jpg',
+    tahoe: '/images/wallpaper-tahoe.jpg',
+};
+
+export function wallpaperUrl(wallpaper: string, customWallpaper?: string | null): string {
+    if (wallpaper === 'custom') return customWallpaper ?? BUILTIN_WALLPAPERS.tahoe;
+    return BUILTIN_WALLPAPERS[wallpaper] ?? wallpaper;
 }
 
 export interface PreviewTarget {
@@ -62,7 +68,9 @@ interface DesktopContextType {
     sleepScreen: () => void;
     restartSequence: () => void;
     wallpaper: string;
-    setWallpaper: (url: string) => void;
+    setWallpaper: (id: string) => void;
+    customWallpaper: string | null;
+    setCustomWallpaper: (dataUrl: string) => void;
     soundEnabled: boolean;
     setSoundEnabled: (v: boolean) => void;
     playSound: (type: 'open' | 'close') => void;
@@ -79,8 +87,10 @@ export const DesktopContext = createContext<DesktopContextType>({
     windowsState: initialWindowsState,
     sleepScreen: () => {},
     restartSequence: () => {},
-    wallpaper: 'default',
+    wallpaper: 'tahoe',
     setWallpaper: () => {},
+    customWallpaper: null,
+    setCustomWallpaper: () => {},
     soundEnabled: true,
     setSoundEnabled: () => {},
     playSound: () => {},
@@ -93,9 +103,20 @@ export const useDesktop = () => useContext(DesktopContext);
 export const DesktopProvider = ({ children }: { children: ReactNode }) => {
     const [windowsState, setWindowsState] = useState<WindowsState>(initialWindowsState);
     const [isSleeping, setIsSleeping] = useState(false);
-    const [wallpaper, setWallpaperState] = useState<string>(
-        () => localStorage.getItem('portfolio-wallpaper') || 'default'
-    );
+    // Legacy versions of this app stored the actual custom data URL directly under
+    // 'portfolio-wallpaper'. Treat anything that isn't a known built-in id as that
+    // legacy shape and migrate it into the separate custom-wallpaper slot below.
+    const [wallpaper, setWallpaperState] = useState<string>(() => {
+        const stored = localStorage.getItem('portfolio-wallpaper');
+        if (stored === 'default' || stored === 'tahoe' || stored === 'custom') return stored;
+        if (stored) return 'custom';
+        return 'tahoe';
+    });
+    const [customWallpaper, setCustomWallpaperState] = useState<string | null>(() => {
+        const stored = localStorage.getItem('portfolio-wallpaper');
+        if (stored && stored !== 'default' && stored !== 'tahoe' && stored !== 'custom') return stored;
+        return localStorage.getItem('portfolio-wallpaper-custom');
+    });
     const [previewTarget, setPreviewTarget] = useState<PreviewTarget | null>(null);
 
     const [soundEnabled, setSoundEnabledState] = useState<boolean>(
@@ -111,16 +132,30 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
 
     // Apply wallpaper to body whenever it changes
     useEffect(() => {
-        document.body.style.backgroundImage = `url(${wallpaperUrl(wallpaper)})`;
-    }, [wallpaper]);
+        document.body.style.backgroundImage = `url(${wallpaperUrl(wallpaper, customWallpaper)})`;
+    }, [wallpaper, customWallpaper]);
 
-    const setWallpaper = (url: string) => {
+    // Switches which wallpaper is active. Does NOT touch the stored custom
+    // upload, so switching to Default/Tahoe and back to Custom doesn't lose it.
+    const setWallpaper = (id: string) => {
         try {
-            localStorage.setItem('portfolio-wallpaper', url);
+            localStorage.setItem('portfolio-wallpaper', id);
         } catch {
-            console.warn('[DesktopContext] localStorage full — wallpaper not persisted');
+            console.warn('[DesktopContext] localStorage full — wallpaper choice not persisted');
         }
-        setWallpaperState(url);
+        setWallpaperState(id);
+    };
+
+    // Stores a newly uploaded custom wallpaper and activates it.
+    const setCustomWallpaper = (dataUrl: string) => {
+        try {
+            localStorage.setItem('portfolio-wallpaper-custom', dataUrl);
+            localStorage.setItem('portfolio-wallpaper', 'custom');
+        } catch {
+            console.warn('[DesktopContext] localStorage full — custom wallpaper not persisted');
+        }
+        setCustomWallpaperState(dataUrl);
+        setWallpaperState('custom');
     };
 
     const setSoundEnabled = (v: boolean) => {
@@ -216,7 +251,7 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
         <DesktopContext.Provider value={{
             openWindow, closeWindow, focusWindow, updatePosition, constrainWindows,
             windowsState, sleepScreen, restartSequence,
-            wallpaper, setWallpaper,
+            wallpaper, setWallpaper, customWallpaper, setCustomWallpaper,
             soundEnabled, setSoundEnabled, playSound,
             previewTarget, openPreview,
         }}>
