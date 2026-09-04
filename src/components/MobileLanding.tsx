@@ -136,7 +136,7 @@ export default function MobileLanding() {
     return (
         <div
             ref={containerRef}
-            className="min-h-screen w-full flex flex-col items-center px-5 pt-16 pb-8 overflow-y-auto"
+            className="h-dvh w-full flex flex-col items-center px-5 pt-16 pb-8 overflow-y-auto"
             style={{
                 backgroundImage: 'url("/images/wallpaper-tahoe.jpg")',
                 backgroundSize: 'cover',
