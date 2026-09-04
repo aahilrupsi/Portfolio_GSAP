@@ -20,6 +20,11 @@ export default {
             });
         }
 
+        if (url.pathname === '/resume') {
+            const pdfUrl = new URL('/resume.pdf', url);
+            return env.ASSETS.fetch(new Request(pdfUrl, request));
+        }
+
         return env.ASSETS.fetch(request);
     },
 } satisfies ExportedHandler<Env>;
