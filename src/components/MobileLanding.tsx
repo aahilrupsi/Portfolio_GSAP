@@ -47,7 +47,7 @@ function TypewriterText({ text, startDelay = 0 }: { text: string; startDelay?: n
                     clearInterval(tick);
                     setDone(true);
                 }
-            }, 22);
+            }, 10);
             return () => clearInterval(tick);
         }, startDelay);
         return () => clearTimeout(start);
