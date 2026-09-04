@@ -92,7 +92,7 @@ function PreviewWindow() {
                 ) : (
                     <div
                         className="absolute inset-0 bg-cover bg-center opacity-40"
-                        style={{ backgroundImage: 'url("/images/wallpaper.jpg")' }}
+                        style={{ backgroundImage: 'url("/images/wallpaper-tahoe.jpg")' }}
                     />
                 )}
                 {gifError && (
@@ -138,7 +138,7 @@ export default function MobileLanding() {
             ref={containerRef}
             className="min-h-screen w-full flex flex-col items-center px-5 pt-16 pb-8 overflow-y-auto"
             style={{
-                backgroundImage: 'url("/images/wallpaper.jpg")',
+                backgroundImage: 'url("/images/wallpaper-tahoe.jpg")',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
             }}
