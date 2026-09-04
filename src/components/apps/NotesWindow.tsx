@@ -12,10 +12,11 @@ export default function NotesWindow() {
         `My name is ${PROFILE.name}. Welcome to my portfolio! Here is some stuff for you to try out.\n\n` +
         '1. Click and drag the "Welcome" text, its made to be interactive. See how far you can stretch it.\n' +
         '2. Explore the apps in the dock.\n' +
-        '3. Feel free to edit this note - it\'s just for you!\n' +
-        '4. Click "Go Full Screen" to get the best experience\n\n' +
+        '3. Feel free to edit this note - it\'s just for you!\n\n' +
         'Enjoy your stay!'
     );
+
+    const isMacbookRoute = window.location.pathname === '/macbook';
 
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -75,6 +76,12 @@ export default function NotesWindow() {
                         >
                             {content}
                         </div>
+
+                        {!isMacbookRoute && (
+                            <div className="text-[15px] leading-relaxed text-gray-700 mt-4">
+                                P.S. Click <a href="/macbook" className="text-blue-500 underline hover:text-blue-600">here</a> for some threejs stuff I'm playing around with.
+                            </div>
+                        )}
                     </div>
 
                     {/* Bottom Bar Gradient (Subtle) */}
