@@ -49,7 +49,7 @@ export default function TerminalWindow() {
                 trigger: 'temporary',
                 appName: 'Terminal',
                 title: 'Feature incomplete',
-                message: "The AI backend for this terminal isn't wired up yet, so input is disabled — coming soon.",
+                message: "The AI backend for this terminal isn't wired up yet, so input is disabled. Coming soon.",
                 icon: terminalIcon,
             });
         }
@@ -87,8 +87,8 @@ export default function TerminalWindow() {
                                 value=""
                                 disabled
                                 readOnly
-                                placeholder="input disabled — coming soon"
-                                className="flex-1 bg-transparent outline-none border-none font-mono text-[13px] text-white/40 placeholder:text-white/25 disabled:opacity-50"
+                                placeholder="Coming soon — an AI chatbot to discuss my resume with."
+                                className="flex-1 min-w-0 bg-transparent outline-none border-none font-mono text-[13px] text-white/40 placeholder:text-white/25 disabled:opacity-50"
                             />
                         </div>
                     </div>

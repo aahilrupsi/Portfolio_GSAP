@@ -45,15 +45,15 @@ const SEED_INBOX: MailMessage[] = [
         date: 'Yesterday',
         read: true,
     },
-    {
-        id: 'recruiter',
-        from: { name: 'Talent Partner', email: 'noreply@talentnetwork.example' },
-        subject: 'Your profile is getting attention',
-        preview: 'Hiring managers have been viewing your profile this week...',
-        body: 'Hiring managers have been viewing your profile this week. Keep your portfolio up to date to get noticed!',
-        date: 'Mon',
-        read: true,
-    },
+    // {
+    //     id: 'recruiter',
+    //     from: { name: 'Talent Partner', email: 'noreply@talentnetwork.example' },
+    //     subject: 'Your profile is getting attention',
+    //     preview: 'Hiring managers have been viewing your profile this week...',
+    //     body: 'Hiring managers have been viewing your profile this week. Keep your portfolio up to date to get noticed!',
+    //     date: 'Mon',
+    //     read: true,
+    // },
 ];
 
 // ─── Mailbox sidebar config ──────────────────────────────────────────────────

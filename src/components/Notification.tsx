@@ -3,12 +3,12 @@ import gsap from 'gsap';
 import { Draggable } from 'gsap/all';
 import { X, Bell } from 'lucide-react';
 import { useNotifications } from '../contexts/NotificationContext';
-import { type ActiveNotification, NOTIFICATION_WIDTH, NOTIFICATION_APPROX_HEIGHT } from '../types/notification';
+import { type ActiveNotification, NOTIFICATION_WIDTH } from '../types/notification';
 
 gsap.registerPlugin(Draggable);
 
-const NAVBAR_HEIGHT = 28; // h-7, keep notifications from being dragged under the menu bar
 const DISMISS_DRAG_DISTANCE = 220; // flick a notification this far to send it away
+const DISMISS_OVERSHOOT = 40; // extra travel past the threshold before the clamp catches it
 
 interface NotificationProps {
     notification: ActiveNotification;
@@ -16,7 +16,7 @@ interface NotificationProps {
 
 export default function Notification({ notification }: NotificationProps) {
     const { key, x, y, zIndex, leaving, appName, title, message, icon } = notification;
-    const { dismiss, removeNotification, bounds } = useNotifications();
+    const { dismiss, removeNotification } = useNotifications();
 
     // outerRef holds absolute position, driven entirely through GSAP's x/y
     // transform properties (not a raw inline transform string) so that both
@@ -31,21 +31,14 @@ export default function Notification({ notification }: NotificationProps) {
     // (e.g. when a notification above this one is dismissed and this one
     // shifts up), not just whatever position it was spawned at.
     const slotRef = useRef({ x, y });
-    // Read live inside GSAP's liveSnap closures (set up once at mount)
-    // without needing to recreate the Draggable instance on every resize.
-    const boundsRef = useRef(bounds);
 
     console.log(`[Notification] Rendering ${key}:`, { x, y, zIndex, leaving });
 
-    useEffect(() => {
-        boundsRef.current = bounds;
-    }, [bounds]);
-
     // Create the draggable target once per notification instance. Dragging is
-    // clamped to the visible desktop area on both axes — this is a notification,
-    // not a desktop window, so it shouldn't be relocatable off-screen. Releasing
-    // it either dismisses it (dragged past the threshold) or springs it back to
-    // its stack slot; it never stays wherever it was dropped.
+    // locked to the x-axis and only rightward, mirroring macOS's swipe-to-dismiss —
+    // this is a notification, not a desktop window, so it isn't freely relocatable.
+    // Releasing it either dismisses it (dragged past the threshold) or springs it
+    // back to its stack slot; it never stays wherever it was dropped.
     useEffect(() => {
         const el = outerRef.current;
         if (!el) return;
@@ -53,15 +46,16 @@ export default function Notification({ notification }: NotificationProps) {
         gsap.set(el, { x: slotRef.current.x, y: slotRef.current.y });
 
         const [instance] = Draggable.create(el, {
+            type: 'x',
             zIndexBoost: false,
             liveSnap: {
-                x: (val: number) => Math.min(Math.max(val, 0), Math.max(0, boundsRef.current.width - NOTIFICATION_WIDTH)),
-                y: (val: number) => Math.min(Math.max(val, NAVBAR_HEIGHT), Math.max(NAVBAR_HEIGHT, boundsRef.current.height - NOTIFICATION_APPROX_HEIGHT)),
+                x: (val: number) => Math.min(Math.max(val, slotRef.current.x), slotRef.current.x + DISMISS_DRAG_DISTANCE + DISMISS_OVERSHOOT),
             },
             onDragEnd() {
+                // macOS dismisses banners on a rightward swipe, not any-direction
+                // drag distance — a leftward or vertical drag should just snap back.
                 const dx = this.x - slotRef.current.x;
-                const dy = this.y - slotRef.current.y;
-                if (Math.hypot(dx, dy) > DISMISS_DRAG_DISTANCE) {
+                if (dx > DISMISS_DRAG_DISTANCE) {
                     dismiss(key);
                 } else {
                     gsap.to(el, {
